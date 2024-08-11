@@ -1,0 +1,19 @@
+/* stylelint-disable property-no-unknown */
+// 导出的变量可以在脚本中使用
+:export {
+  sidebarBgColor: $sidebar-bg-color;
+  sidebarTextColor: $sidebar-text-color;
+  primaryColor: $primary-color;
+  primaryLighterColor: $primary-lighter-color;
+}
+/* stylelint-enable property-no-unknown */
+
+// <!-- src/components/HelloWorld.vue -->
+// <script setup lang="ts">
+//   import variables from "@/styles/variables.module.scss";
+//   console.log(variables.bgColor)  
+// </script>
+
+// <template>
+//   <div style="width:100px;height:100px" :style="{ 'background-color': variables.bgColor }" />
+// </template>

@@ -1,0 +1,19 @@
+.el-menu {
+  border-right: none !important;
+}
+
+.el-table tr {
+  background-color: $page-bg-highlight-color !important;
+}
+
+.el-table th.el-table__cell {
+  background-color: $page-bg-color !important;
+}
+
+.el-table .cell {
+  padding: 0 40px !important;
+}
+
+.el-row {
+  margin: 0 !important;
+}
