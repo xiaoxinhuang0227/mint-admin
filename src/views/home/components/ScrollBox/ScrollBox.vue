@@ -111,7 +111,7 @@
               
             </div> -->
             <div>
-              <p class="name">功能组件</p>
+              <p class="name">集成的功能逐步更新中...</p>
               <!-- <p class="url">components</p> -->
             </div>
           </div>
@@ -119,8 +119,13 @@
           <div class="desc">
             <!-- <p class="title">逐步更新中</p> -->
             <div class="text">
-              <p>Form表单组件，高度封装，搭配 useForm Hook，传入配置构建视图</p>
-              <p>Table表格组件，搭配useTable Hook</p>
+              <p>1. Form表单组件，高度封装，搭配 useForm Hook，传入配置构建视图</p>
+              <p>2. Table表格组件，搭配useTable Hook，传入配置构建视图</p>
+              <p>3. useCrudSchema Hook，搭配 Form / Table / Description / Dialog / Search 组件抽离增删改查操作</p>
+              <p>4. 状态看板，实现任务拖拽</p>
+              <p>5. quill富文本</p>
+              <p>6. 腾讯地图选址</p>
+              <p>7. echarts图表</p>
             </div>
           </div>
 
@@ -299,7 +304,7 @@ export default {
       }
       .desc {
         margin-top: 68px;
-        width: 364px;
+        width: 420px;
         font-weight: bold;
         .title {
           margin-bottom: 17px;
