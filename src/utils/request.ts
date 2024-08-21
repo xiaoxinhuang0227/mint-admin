@@ -45,6 +45,7 @@ service.interceptors.response.use(
       if (status == 405 || status == 404) {
         const url = error.config.url;
         const mockRes = mockData.find(v => v.url === url);
+        console.log(mockRes, error.response)
         return mockRes.response().data;
       }
       
