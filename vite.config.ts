@@ -128,7 +128,6 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
     ],
     // 构建配置
     build: {
-      outDir: "docs",
       chunkSizeWarningLimit: 2000, // 消除打包大小超过500kb警告
       // terser 通常用于压缩 JavaScript 代码，提高生产环境构建的性能。
       minify: "terser", // Vite 2.6.x 以上需要配置 minify: "terser", terserOptions 才能生效
