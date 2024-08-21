@@ -224,7 +224,7 @@ export const wholeMenuRouterMap: RouteRecordRaw[] = [
 ]
 
 export const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHistory('/mint-admin'),
   routes: constantRouterMap,
   scrollBehavior: () => { top: 0 }
 })
