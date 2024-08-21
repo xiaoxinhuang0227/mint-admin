@@ -13,14 +13,14 @@ setTimeout(() => {
     <DataSummary></DataSummary>
     <ElRow :gutter="20">
       <ElCol :span="8">
-        <ElCard shadow="none">
+        <ElCard shadow="never">
           <ElSkeleton :loading="loading" :rows="10">
             <Echart :options="pieChartData"></Echart>
           </ElSkeleton>
         </ElCard>
       </ElCol>
       <ElCol :span="16">
-        <ElCard shadow="none">
+        <ElCard shadow="never">
           <ElSkeleton :loading="loading" :rows="10">
             <Echart :options="stackedAreaChartData"></Echart>
           </ElSkeleton>
@@ -29,7 +29,7 @@ setTimeout(() => {
     </ElRow>
     <ElRow :gutter="20">
       <ElCol :span="24">
-        <ElCard shadow="none" class="mt-3">
+        <ElCard shadow="never" class="mt-3">
           <ElSkeleton :loading="loading" :rows="10">
             <Echart :options="mixOption"></Echart>
           </ElSkeleton>

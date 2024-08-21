@@ -33,18 +33,16 @@ export default defineComponent({
       route.matched.forEach(item => {
         const routeChildren = item?.children;
         if (!routeChildren || routeChildren?.length !== 1) {
-          console.log(item)
           path.push(resolvePath(item));
         }
       })
-      console.log(path)
       defaultActive.value = path[path.length - 1];
       changeCurrentMenu(path);
     }
     init();
 
-    const changeActiveMenu = (v, path, routeResult) => {
-      console.log(v, path, routeResult);
+    const changeActiveMenu = (v, path) => {
+      // console.log(v, path);
       changeCurrentMenu(path);
       push({ name: v.split('/')[0] })
     }
