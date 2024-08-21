@@ -42,17 +42,13 @@ service.interceptors.response.use(
       const { data, status } = error.response;
       const { msg } = data;
       // 如果不支持mock，直接筛选返回数据
-      if (status == 405) {
+      if (status == 405 || status == 404) {
         const url = error.config.url;
         const mockRes = mockData.find(v => v.url === url);
-        console.log(mockRes.response());
         return mockRes.response().data;
       }
       
       switch (status) {
-        case 404:
-          
-          break;
         case 401:
           // token 过期，跳转登录页
           ElMessageBox.confirm('当前页面已失效，请重新登录', '提示', {
