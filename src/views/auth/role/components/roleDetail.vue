@@ -15,8 +15,8 @@ let props = defineProps({
 let loading = ref<boolean>(false);
 
 const getPermitRoutes = async () => {
-  const res = await getRoleDetailApi(props.currentRow.id);
-  return !res.code && res.data.permission;
+  // const res = await getRoleDetailApi(props.currentRow.id);
+  // return !res.code && res.data.permission;
 }
 
 const treeRef = ref<typeof ElTree>()
@@ -59,12 +59,12 @@ const treeData = ref<any[]>([])
 const getMenuList = async () => {
   try {
     loading.value = true;
-    const res = await getRoleTree()
-    const permitRoutes = await getPermitRoutes();
-    if (permitRoutes?.length) {
-      treeData.value = filterRoutes(res.data, permitRoutes);
-      await nextTick();
-    }
+    // const res = await getRoleTree()
+    // const permitRoutes = await getPermitRoutes();
+    // if (permitRoutes?.length) {
+    //   treeData.value = filterRoutes(res.data, permitRoutes);
+    //   await nextTick();
+    // }
   } catch (e) {
     console.log(e);
   } finally {

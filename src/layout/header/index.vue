@@ -2,7 +2,7 @@
 import Breadcrumb from './breadcrumb.vue';
 import Collapse from './collapse.vue';
 import UserInfo from './userInfo.vue';
-
+import { Screenfull } from '@/components/Screenfull/index';
 
 </script>
 
@@ -12,7 +12,8 @@ import UserInfo from './userInfo.vue';
       <Collapse class="mr-5"></Collapse>
       <Breadcrumb></Breadcrumb>
     </div>
-    <div>
+    <div class="flex-center">
+      <Screenfull class="mr-5" :size="30" color="#696969"></Screenfull>
       <UserInfo></UserInfo>
     </div>
   </div>

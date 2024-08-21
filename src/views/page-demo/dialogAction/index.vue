@@ -1,5 +1,4 @@
 <script setup lang="tsx">
-import ContentWrap from '@/components/ContentWrap/index.vue'
 import { Search } from '@/components/Search'
 import Dialog from '@/components/Dialog/index.vue'
 import { Table } from '@/components/Table'
@@ -10,6 +9,7 @@ import Write from './components/write.vue'
 import Detail from './components/detail.vue'
 import Guide from './components/guide.vue'
 import { CrudSchema, useCrudSchemas } from '@/hooks/useCrudSchemas'
+import { ElInputNumber } from 'element-plus';
 
 const ids = ref<string[]>([]);
 
@@ -105,6 +105,19 @@ const crudSchemas = reactive<CrudSchema[]>([
   {
     field: 'pageviews',
     label: '阅读数',
+    table: {
+      width: 200,
+      formatter: (_, row) => {
+        return <ElInputNumber
+                  key={ row.id }
+                  v-model={ row.pageviews }
+                  size='small'
+                  min={1}
+                  max={9999999}
+                  precision={0}
+               ></ElInputNumber>
+      }
+    },
     search: {
       hidden: true
     },
@@ -229,7 +242,7 @@ const save = async () => {
 
     <Guide></Guide>
 
-    <Dialog v-model="dialogVisible" :title="dialogTitle">
+    <Dialog v-model="dialogVisible" fullscreen :title="dialogTitle">
       <Write
         v-if="actionType !== 'detail'"
         ref="writeRef"

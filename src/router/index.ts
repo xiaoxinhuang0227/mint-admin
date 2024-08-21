@@ -92,6 +92,14 @@ export const wholeMenuRouterMap: RouteRecordRaw[] = [
               title: 'useTable'
             }
           },
+          {
+            path: 'merge-cell',
+            component: () => import('@/views/example/table/mergeCell/index.vue'),
+            name: 'mergeCellExample',
+            meta: {
+              title: '原生合并表格'
+            }
+          }
         ]
       },
       {
@@ -145,6 +153,14 @@ export const wholeMenuRouterMap: RouteRecordRaw[] = [
           title: 'detail 描述组件'
         }
       },
+      {
+        path: 'map',
+        component: () => import('@/views/example/map/index.vue'),
+        name: 'mapExample',
+        meta: {
+          title: '腾讯地图组件'
+        }
+      }
     ]
   },
   {
@@ -152,14 +168,25 @@ export const wholeMenuRouterMap: RouteRecordRaw[] = [
     component: Layout,
     name: 'pageDemo',
     redirect: '/page-demo/dialog-action',
+    meta: {
+      title: '页面综合实例',
+      icon: 'ant-design:dashboard-outlined'
+    },
     children: [
       {
         path: 'dialog-action',
         component: () => import('@/views/page-demo/dialogAction/index.vue'),
         name: 'dialogPageDemo',
         meta: {
-          title: '页面综合实例-弹窗',
-          icon: 'ant-design:dashboard-outlined'
+          title: '增删改查页面'
+        }
+      },
+      {
+        path: 'status-board',
+        component: () => import('@/views/page-demo/statusBoard/index.vue'),
+        name: 'statusBoardPageDemo',
+        meta: {
+          title: '状态看板'
         }
       }
     ]

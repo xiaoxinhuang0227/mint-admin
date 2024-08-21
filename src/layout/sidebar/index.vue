@@ -6,6 +6,7 @@ import { useAppStore } from '@/store/modules/app.ts';
 import { usePermissionStore } from '@/store/modules/permission.ts';
 import variables from "@/styles/variables.module.scss";
 import { useRenderMenuItem } from './useRenderMenuItem';
+import { ElScrollbar, ElMenu } from 'element-plus';
 
 export default defineComponent({
   name: 'Sidebar',
@@ -64,16 +65,18 @@ export default defineComponent({
         <div class="framework-name" onClick={ goToHome }>
           Mint { !unref(isMenuCollapse) && 'Admin' }
         </div>
-        <ElMenu
-          collapse={unref(isMenuCollapse)}
-          onSelect={changeActiveMenu}
-          default-active={unref(defaultActive)}
-          background-color={variables.sidebarBgColor}
-          text-color={variables.sidebarTextColor}
-        >
+        <ElScrollbar class="menu-content">
+          <ElMenu
+            collapse={unref(isMenuCollapse)}
+            onSelect={changeActiveMenu}
+            default-active={unref(defaultActive)}
+            background-color={variables.sidebarBgColor}
+            text-color={variables.sidebarTextColor}
+          >
 
-          {{ default: () => renderMenuItem(sidebarMenu) }}
-        </ElMenu>
+            {{ default: () => renderMenuItem(sidebarMenu) }}
+          </ElMenu>
+        </ElScrollbar>
       </div>
     )
   } 
@@ -84,6 +87,8 @@ export default defineComponent({
 
 <style scoped lang="scss">
 .component-sidebar {
+  display: flex;
+  flex-direction: column;
   .framework-name  {
     height: $header-height;
     padding: 0 15px;
@@ -91,6 +96,9 @@ export default defineComponent({
     line-height: $header-height;
     text-align: center;
     font-weight: bold;
+  }
+  .menu-content {
+    flex: 1;
   }
 }
 

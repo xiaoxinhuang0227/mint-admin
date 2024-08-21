@@ -1,11 +1,13 @@
 <script setup lang="tsx">
-import { propTypes } from '@/utils/propTypes'
-import { computed, useAttrs, ref, unref } from 'vue'
-import { isNumber } from '@/utils/is'
+import { propTypes } from '@/utils/propTypes';
+import { computed, useAttrs, ref, unref } from 'vue';
+import { isNumber } from '@/utils/is';
+import { Icon } from '@/components/Icon/index';
 
 const props = defineProps({
   modelValue: propTypes.bool.def(false),
   title: propTypes.string.def('Dialog'),
+  fullscreen: propTypes.bool.def(true),
   maxHeight: propTypes.oneOfType([String, Number]).def('400px'),
   width: propTypes.oneOfType([String, Number]).def('500px')
 })
@@ -29,6 +31,13 @@ const dialogStyle = computed(() => {
     maxHeight: unref(dialogHeight),
   }
 })
+
+const isFullscreen = ref(false)
+
+const toggleFull = () => {
+  isFullscreen.value = !unref(isFullscreen)
+}
+
 </script>
 
 <template>
@@ -39,10 +48,33 @@ const dialogStyle = computed(() => {
     lock-scroll
     draggable
     top="10%"
+    :fullscreen="isFullscreen"
     :close-on-click-model="false"
-    :title="title"
     :width="dialogWidth"
+    :show-close="false"
   >
+    <template #header="{ close }">
+      <div class="dialog-title flex-between">
+        <slot name="title">{{ title }}</slot>
+        <div>
+          <Icon
+            class="icon mr-2"
+            :size="20"
+            v-if="fullscreen"
+            :icon="
+              isFullscreen ? 'ic:baseline-fullscreen-exit' : 'ic:twotone-fullscreen'
+            "
+            @click="toggleFull"
+          />
+          <Icon
+            class="icon"
+            :size="20"
+            icon="ic:twotone-close"
+            @click="close"
+          />
+        </div>
+      </div>
+    </template>
     <el-scrollbar :style="dialogStyle">
       <slot></slot>
     </el-scrollbar>
@@ -55,5 +87,8 @@ const dialogStyle = computed(() => {
 <style lang="scss" scoped>
 .compoent-dialog {
   position: relative;
+  .icon {
+    cursor: pointer;
+  }
 }
 </style>

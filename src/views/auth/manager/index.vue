@@ -2,10 +2,10 @@
 import { ref, unref, reactive } from 'vue';
 import { useRouter } from 'vue-router'
 
-import { ElMessage, ElTag, ElMessageBox } from 'element-plus';
+import { ElMessage} from 'element-plus';
 import { Search } from '@/components/Search'
 import ContentWrap from '@/components/ContentWrap/index.vue';
-import { Table, TableColumn } from '@/components/Table';
+import { Table } from '@/components/Table';
 import BaseButton from '@/components/BaseButton/index.vue';
 import Write from './components/managerWrite.vue';
 import Dialog from '@/components/Dialog/index.vue';
@@ -40,17 +40,16 @@ const { tableRegister, tableState, tableMethods } = useTable({
     const res: IManagerResult = await AuthAPI.getManagerList({
       page: unref(currentPage),
       limit: unref(pageSize),
-      ...unref(searchParams)
     })
     return {
       list: res.items || [],
       total: res.total || 0
     }
   },
-  fetchDelApi: async () => {
+  // fetchDelApi: async () => {
     // const res = await deleteManagerApi(id.value!)
     // return !!res
-  }
+  // }
 })
 
 const { total, loading, dataList, pageSize, currentPage } = tableState;
@@ -92,7 +91,7 @@ const crudSchemas = reactive<CrudSchema[]>([
   {
     field: 'account',
     label: '账号',
-    table: { width: 200 },
+    table: { width: 150 },
     form: {
       colProps: { span: 24 },
       component: 'Input',
@@ -117,7 +116,7 @@ const crudSchemas = reactive<CrudSchema[]>([
   {
     field: 'roleId',
     label: '角色',
-    table: { width: 200 },
+    table: { width: 150 },
     search: { hidden: true },
     form: {
       component: 'Select',
@@ -134,7 +133,7 @@ const crudSchemas = reactive<CrudSchema[]>([
   {
     field: 'phone',
     label: '手机号',
-    table: { width: 200 },
+    table: { hidden: true },
     search: { hidden: true },
     form: { colProps: { span: 24 } }
   },
@@ -196,7 +195,7 @@ const crudSchemas = reactive<CrudSchema[]>([
     detail: { hidden: true },
     search: { hidden: true },
     table: {
-      width: 280,
+      width: 250,
       slots: {
         default: (data: any) => {
           const row = data.row as IManager
@@ -286,12 +285,12 @@ const setSearchParams = (params: any) => {
 
 <template>
   <div>
-    <ContentWrap :title="pageTitle">
+    <ContentWrap :title="pageTitle" class="m-3">
       <template #action>
         <BaseButton type="primary" @click="AddAction">新增</BaseButton>
       </template>
 
-      <Search
+      <Search 
         :schema="allSchemas.searchSchema"
         @reset="setSearchParams"
         @search="setSearchParams"

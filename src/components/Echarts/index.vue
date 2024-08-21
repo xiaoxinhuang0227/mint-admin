@@ -20,9 +20,7 @@ const echartRef = ref(null);
 let echartInstance;
 
 const resizeHandler = debounce(() => {
-  if (echartRef) {
-    echartRef.resize()
-  }
+  echartInstance?.resize()
 }, 100)
 
 onMounted(() => {

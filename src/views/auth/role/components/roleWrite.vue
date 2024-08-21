@@ -16,7 +16,7 @@ const props = defineProps({
   }
 })
 
-const treeRef = ref<typeof ElTree>();
+const treeRef = ref();
 const defaultCheckedKeys = ref<string[]>([]);
 
 const getPermitRoutes = async (all: IPermissionItem[]) => {
