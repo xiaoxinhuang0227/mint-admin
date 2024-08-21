@@ -4,7 +4,7 @@ import Mock from 'mockjs';
 
 export default [
   {
-    url: '/api/v1/auth/login',
+    url: '/auth/login',
     method: 'post',
     response: () => {
       return {
@@ -23,7 +23,7 @@ export default [
     },
   },
   {
-    url: '/api/v1/auth/role',
+    url: '/auth/role',
     method: 'get',
     response: () => {
       return {
@@ -43,7 +43,7 @@ export default [
     },
   },
   {
-    url: '/api/v1/auth/manager',
+    url: '/auth/manager',
     method: 'get',
     response: () => {
       return {

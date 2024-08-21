@@ -56,7 +56,7 @@ const descSchema = [
 ]
 export default [
   {
-    url: '/api/v1/table/basic',
+    url: '/table/basic',
     method: 'get',
     response: () => {
       return {
@@ -86,7 +86,7 @@ export default [
     },
   },
   {
-    url: '/api/v1/table/useTable',
+    url: '/table/useTable',
     method: 'get',
     response: () => {
       return {
@@ -130,7 +130,7 @@ export default [
     }
   },
   {
-    url: '/api/v1/table/delTable',
+    url: '/table/delTable',
     method: 'delete',
     response: () => {
       return {
@@ -143,7 +143,7 @@ export default [
     }
   },
   {
-    url: '/api/v1/table/basicForm',
+    url: '/table/basicForm',
     method: 'get',
     response: () => {
       return {
@@ -169,7 +169,7 @@ export default [
     }
   },
   {
-    url: '/api/v1/table/useForm',
+    url: '/table/useForm',
     method: 'get',
     response: () => {
       return {
@@ -205,7 +205,7 @@ export default [
     }
   },
   {
-    url: '/api/v1/table/search',
+    url: '/table/search',
     method: 'get',
     response: () => {
       return {
@@ -269,7 +269,7 @@ export default [
     }
   },
   {
-    url: '/api/v1/table/getTable',
+    url: '/table/getTable',
     method: 'get',
     response: () => {
       return {
@@ -289,7 +289,7 @@ export default [
     }
   },
   {
-    url: '/api/v1/table/saveTable',
+    url: '/table/saveTable',
     method: 'post',
     response: () => {
       return {
@@ -300,7 +300,7 @@ export default [
     }
   },
   {
-    url: '/api/v1/table/desc',
+    url: '/table/desc',
     method: 'get',
     response: () => {
       return {
@@ -321,7 +321,7 @@ export default [
     }
   },
   {
-    url: '/api/v1/table/curd',
+    url: '/table/curd',
     method: 'get',
     response: () => {
       return {
