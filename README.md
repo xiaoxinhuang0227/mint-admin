@@ -1,5 +1,9 @@
 # Vue 3 + TypeScript + Vite
 
-This template should help get you started developing with Vue 3 and TypeScript in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+本项目只作为个人知识沉淀积累，保存组件封装案例
 
-Learn more about the recommended Project Setup and IDE Support in the [Vue Docs TypeScript Guide](https://vuejs.org/guide/typescript/overview.html#project-setup).
+Form/Table/Search组件的封装，有参考vue-element-plus-admin项目
+
+gitee源码地址：https://gitee.com/mint_candy/mint-admin
+github源码地址：https://github.com/xiaoxinhuang0227/mint-admin
+在线预览地址：https://xiaoxinhuang0227.github.io/mint-admin/

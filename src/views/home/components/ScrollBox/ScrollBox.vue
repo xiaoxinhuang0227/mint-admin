@@ -65,7 +65,7 @@
           <div class="desc">
             <!-- <p class="title">知识沉淀累积，集合多种业务场景</p> -->
             <p class="text">
-              本项目是Web端中后台管理系统，使用较新的技术栈，集合了多种功能，包含二次封装组件，动态菜单，hooks，utils等功能，不适合二次开发，代码冗余较多，学习实验为主。
+              本项目是Web端中后台管理系统，仅作为个人项目展示，主要是为了案例沉淀积累，有借鉴其他项目开源项目的经验。
             </p>
             <p class="text">功能正在逐步更新中...</p>
           </div>
@@ -83,7 +83,7 @@
              
             </div> -->
             <div>
-              <p class="name">需要掌握的知识</p>
+              <p class="name">使用的技术栈</p>
               <!-- <p class="url">technology stack</p> -->
             </div>
           </div>
@@ -118,15 +118,13 @@
 
           <div class="desc">
             <!-- <p class="title">逐步更新中</p> -->
-            <div class="text">
-              <p>1. Form表单组件，高度封装，搭配 useForm Hook，传入配置构建视图</p>
-              <p>2. Table表格组件，搭配useTable Hook，传入配置构建视图</p>
-              <p>3. useCrudSchema Hook，搭配 Form / Table / Description / Dialog / Search 组件抽离增删改查操作</p>
-              <p>4. 状态看板，实现任务拖拽</p>
-              <p>5. quill富文本</p>
-              <p>6. 腾讯地图选址</p>
-              <p>7. echarts图表</p>
-            </div>
+            <ul class="text">
+              <li>Form / Table / Search / Description 组件，搭配 Hook，传入配置构建视图，参考vue-element-plus-admin</li>
+              <li>状态看板，实现任务拖拽</li>
+              <li>quill富文本</li>
+              <li>腾讯地图选址</li>
+              <li>echarts图表</li>
+            </ul>
           </div>
 
           <!-- <a target="_blank">
