@@ -2,13 +2,14 @@
 import Echart from '@/components/Echarts/index.vue';
 import { stackedAreaChartData, pieChartData, mixChartData } from './charts-data.ts';
 import { formatNumberWithUnit } from '@/utils/index.ts';
+import { formatToDate } from '@/utils/dateUtil.ts'
 const loading = ref(true);
 
 const mixOption = ref(null);
 const loadMixOptions = () => {
   const amountYAxisName = '销售额';
   const rateYAxisName = '增长率';
-  const dateData = mixChartData['amount'].map(v => v.date);
+  const dateData = mixChartData['amount'].map(v => formatToDate(v.date, 'MM/DD'));
 
   const rateData = mixChartData['rate'].map(v => (v.value * 100).toFixed(2));
   const rateMax = Math.ceil(Math.max(...rateData) * 1.1);
@@ -18,7 +19,7 @@ const loadMixOptions = () => {
   const amountMax = Math.ceil(Math.max(...amountData) * 1.1);
   const amountMinNum = Math.ceil(Math.min(...amountData)) * 0.9;
   const amountMin = rateMin > 0 ? amountMinNum : -(amountMax / (rateMax / Math.abs(rateMin)));
-  console.log(rateMax, rateMin, amountMax, amountMinNum, amountMin)
+
   mixOption.value = {
     title: {
       text: 'Mixed Line and Bar'

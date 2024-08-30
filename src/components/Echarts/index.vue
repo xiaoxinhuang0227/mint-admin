@@ -34,8 +34,10 @@ const commonOptions = {
   },
   // 工具栏
   toolbox: {
-    dataView: { show: true, readOnly: false },
-    saveAsImage: { show: true }
+    feature: {
+      dataView: { show: true, readOnly: false },
+      saveAsImage: { show: true }
+    }
   },
   legend: {
     bottom: '0',
@@ -43,12 +45,17 @@ const commonOptions = {
     itemHeight: 4,
     itemGap: 20,
   },
+}
+
+const lineOrBarOpts = {
+  yAxis: [
+    {
+      type: 'value'
+    }
+  ],
   xAxis: [
     {
       type: 'category',
-      axisPointer: {
-        type: 'shadow'
-      },
       axisLine: {
         onZero: false
       },
@@ -57,8 +64,37 @@ const commonOptions = {
       },
       data: []
     }
-  ],
-  boundaryGap: ['5%', '5%']
+  ]
+}
+
+const pieOpts = {
+  tooltip: {
+    trigger: 'item'
+  },
+  series: [
+    {
+      radius: ['40%', '70%'],
+      avoidLabelOverlap: false,
+      padAngle: 5,
+      itemStyle: {
+        borderRadius: 10
+      },
+      label: {
+        show: false,
+        position: 'center'
+      },
+      emphasis: {
+        label: {
+          show: true,
+          fontSize: 40,
+          fontWeight: 'bold'
+        }
+      },
+      labelLine: {
+        show: false
+      },
+    }
+  ]
 }
 
 const echartRef = ref(null);
@@ -69,6 +105,19 @@ const resizeHandler = debounce(() => {
   echartInstance?.resize()
 }, 100)
 
+const setOptions = () => {
+  let sub = {};
+  switch (props.options.series[0].type) {
+    case 'pie':
+      sub = pieOpts;
+      break;
+    default:
+      sub = lineOrBarOpts;
+      break;
+  }
+  return merge({}, commonOptions, sub, props.options);
+}
+
 onMounted(() => {
   initializeChart();
   window.addEventListener('resize', resizeHandler)
@@ -78,14 +127,13 @@ watch(
   () => props.options,
   (newVal, oldVal) => {
     // 当 options 发生变化时，更新图表
-    const finalOptions = merge({}, commonOptions, newVal);
+    const finalOptions = setOptions();
     echartInstance.setOption(finalOptions, true);
   }
 );
 async function initializeChart() {
   await nextTick(); // 等待组件渲染完成
-  const finalOptions = merge({}, commonOptions, props.options);
-  console.log(finalOptions)
+  const finalOptions = setOptions();
   echartInstance = echarts.init(echartRef.value);
   echartInstance.setOption(finalOptions, true);
 }

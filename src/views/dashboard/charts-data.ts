@@ -3,40 +3,15 @@ export const stackedAreaChartData = {
   title: {
     text: 'Stacked Area Chart'
   },
-  tooltip: {
-    trigger: 'axis',
-    axisPointer: {
-      type: 'cross',
-      label: {
-        backgroundColor: '#6a7985'
-      }
-    }
-  },
   legend: {
     data: ['Email', 'Union Ads', 'Video Ads', 'Direct', 'Search Engine'],
     bottom: '0'
-  },
-  toolbox: {
-    feature: {
-      saveAsImage: {}
-    }
-  },
-  grid: {
-    left: '3%',
-    right: '4%',
-    bottom: '10%',
-    containLabel: true
   },
   xAxis: [
     {
       type: 'category',
       boundaryGap: false,
       data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-    }
-  ],
-  yAxis: [
-    {
-      type: 'value'
     }
   ],
   series: [
@@ -99,39 +74,12 @@ export const stackedAreaChartData = {
 
 export const pieChartData =  {
   title: {
-    text: 'Pie Chart',
-  },
-  tooltip: {
-    trigger: 'item'
-  },
-  legend: {
-    bottom: '0',
-    left: 'center'
+    text: 'PieChart'
   },
   series: [
     {
       name: 'Access From',
       type: 'pie',
-      radius: ['40%', '70%'],
-      avoidLabelOverlap: false,
-      padAngle: 5,
-      itemStyle: {
-        borderRadius: 10
-      },
-      label: {
-        show: false,
-        position: 'center'
-      },
-      emphasis: {
-        label: {
-          show: true,
-          fontSize: 40,
-          fontWeight: 'bold'
-        }
-      },
-      labelLine: {
-        show: false
-      },
       data: [
         { value: 1048, name: 'Search Engine' },
         { value: 735, name: 'Direct' },
