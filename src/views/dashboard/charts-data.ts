@@ -1,3 +1,4 @@
+
 export const stackedAreaChartData = {
   title: {
     text: 'Stacked Area Chart'
@@ -142,104 +143,257 @@ export const pieChartData =  {
   ]
 };
 
-export const mixOption = {
-  title: {
-    text: 'Mixed Line and Bar'
-  },
-  grid: {
-    top: '20%',
-    left: '3%',
-    right: '4%',
-    bottom: '10%',
-    containLabel: true
-  },
-  tooltip: {
-    trigger: 'axis',
-    axisPointer: {
-      type: 'cross',
-      crossStyle: {
-        color: '#999'
-      }
-    }
-  },
-  toolbox: {
-    feature: {
-      dataView: { show: true, readOnly: false },
-      magicType: { show: true, type: ['line', 'bar'] },
-      restore: { show: true },
-      saveAsImage: { show: true }
-    }
-  },
-  legend: {
-    bottom: '0',
-    data: ['Evaporation', 'Precipitation', 'Temperature']
-  },
-  xAxis: [
+export const mixChartData = {
+  'rate': [
     {
-      type: 'category',
-      data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-      axisPointer: {
-        type: 'shadow'
-      }
+      'date': 1672502400,
+      'value': 0.054323
+    },
+    {
+      'date': 1672588800,
+      'value': -0.071344
+    },
+    {
+      'date': 1672675200,
+      'value': -0.059364
+    },
+    {
+      'date': 1672761600,
+      'value': -0.233051
+    },
+    {
+      'date': 1672848000,
+      'value': 0.119581
+    },
+    {
+      'date': 1672934400,
+      'value': -0.054082
+    },
+    {
+      'date': 1673020800,
+      'value': -0.019802
+    },
+    {
+      'date': 1673107200,
+      'value': -0.181241
+    },
+    {
+      'date': 1673193600,
+      'value': -0.236685
+    },
+    {
+      'date': 1673280000,
+      'value': 0.112196
+    },
+    {
+      'date': 1673366400,
+      'value': 0.80031
+    },
+    {
+      'date': 1673452800,
+      'value': -0.466915
+    },
+    {
+      'date': 1673539200,
+      'value': -0.108133
+    },
+    {
+      'date': 1673625600,
+      'value': 0.141577
+    },
+    {
+      'date': 1673712000,
+      'value': 0.12338
+    },
+    {
+      'date': 1673798400,
+      'value': -0.416647
+    },
+    {
+      'date': 1673884800,
+      'value': -0.052151
+    },
+    {
+      'date': 1673971200,
+      'value': -0.042062
+    },
+    {
+      'date': 1674057600,
+      'value': 0.222004
+    },
+    {
+      'date': 1674144000,
+      'value': -0.067414
+    },
+    {
+      'date': 1674230400,
+      'value': -0.289051
+    },
+    {
+      'date': 1674316800,
+      'value': -0.050116
+    },
+    {
+      'date': 1674403200,
+      'value': 0.506377
+    },
+    {
+      'date': 1674489600,
+      'value': 0.256359
+    },
+    {
+      'date': 1674576000,
+      'value': -0.173531
+    },
+    {
+      'date': 1674662400,
+      'value': 0.217857
+    },
+    {
+      'date': 1674748800,
+      'value': -0.165496
+    },
+    {
+      'date': 1674835200,
+      'value': 0.040605
+    },
+    {
+      'date': 1674921600,
+      'value': 0.188272
+    },
+    {
+      'date': 1675008000,
+      'value': -0.182316
+    },
+    {
+      'date': 1675094400,
+      'value': -0.097774
     }
   ],
-  yAxis: [
+  'amount': [
     {
-      type: 'value',
-      name: 'Precipitation',
-      min: 0,
-      max: 250,
-      interval: 50,
-      axisLabel: {
-        formatter: '{value} ml'
-      }
+      'date': 1672502400,
+      'value': 15606129.42
     },
     {
-      type: 'value',
-      name: 'Temperature',
-      min: 0,
-      max: 25,
-      interval: 5,
-      axisLabel: {
-        formatter: '{value} °C'
-      }
+      'date': 1672588800,
+      'value': 14492726.3
+    },
+    {
+      'date': 1672675200,
+      'value': 13632385.39
+    },
+    {
+      'date': 1672761600,
+      'value': 10455347.92
+    },
+    {
+      'date': 1672848000,
+      'value': 11705610.02
+    },
+    {
+      'date': 1672934400,
+      'value': 11072548.08
+    },
+    {
+      'date': 1673020800,
+      'value': 10853288.03
+    },
+    {
+      'date': 1673107200,
+      'value': 8886229.76
+    },
+    {
+      'date': 1673193600,
+      'value': 6782988.46
+    },
+    {
+      'date': 1673280000,
+      'value': 7544013.12
+    },
+    {
+      'date': 1673366400,
+      'value': 13581564.26
+    },
+    {
+      'date': 1673452800,
+      'value': 7240133.87
+    },
+    {
+      'date': 1673539200,
+      'value': 6457238.82
+    },
+    {
+      'date': 1673625600,
+      'value': 7371433.71
+    },
+    {
+      'date': 1673712000,
+      'value': 8280924.5
+    },
+    {
+      'date': 1673798400,
+      'value': 4830704.79
+    },
+    {
+      'date': 1673884800,
+      'value': 4578779.94
+    },
+    {
+      'date': 1673971200,
+      'value': 4386189.28
+    },
+    {
+      'date': 1674057600,
+      'value': 5359941.05
+    },
+    {
+      'date': 1674144000,
+      'value': 4998604.02
+    },
+    {
+      'date': 1674230400,
+      'value': 3553752.5
+    },
+    {
+      'date': 1674316800,
+      'value': 3375651.8
+    },
+    {
+      'date': 1674403200,
+      'value': 5085003.49
+    },
+    {
+      'date': 1674489600,
+      'value': 6388589.88
+    },
+    {
+      'date': 1674576000,
+      'value': 5279970.58
+    },
+    {
+      'date': 1674662400,
+      'value': 6430247.38
+    },
+    {
+      'date': 1674748800,
+      'value': 5366069.39
+    },
+    {
+      'date': 1674835200,
+      'value': 5583959.4
+    },
+    {
+      'date': 1674921600,
+      'value': 6635260.34
+    },
+    {
+      'date': 1675008000,
+      'value': 5425543.52
+    },
+    {
+      'date': 1675094400,
+      'value': 4895068.32
     }
   ],
-  series: [
-    {
-      name: 'Evaporation',
-      type: 'bar',
-      tooltip: {
-        valueFormatter: function (value) {
-          return value + ' ml';
-        }
-      },
-      data: [
-        2.0, 4.9, 7.0, 23.2, 25.6, 76.7, 135.6, 162.2, 32.6, 20.0, 6.4, 3.3
-      ]
-    },
-    {
-      name: 'Precipitation',
-      type: 'bar',
-      tooltip: {
-        valueFormatter: function (value) {
-          return value + ' ml';
-        }
-      },
-      data: [
-        2.6, 5.9, 9.0, 26.4, 28.7, 70.7, 175.6, 182.2, 48.7, 18.8, 6.0, 2.3
-      ]
-    },
-    {
-      name: 'Temperature',
-      type: 'line',
-      yAxisIndex: 1,
-      tooltip: {
-        valueFormatter: function (value) {
-          return value + ' °C';
-        }
-      },
-      data: [2.0, 2.2, 3.3, 4.5, 6.3, 10.2, 20.3, 23.4, 23.0, 16.5, 12.0, 6.2]
-    }
-  ]
-};
+}
