@@ -107,9 +107,11 @@ const resizeHandler = debounce(() => {
 
 const setOptions = () => {
   let sub = {};
-  switch (props.options.series[0].type) {
+  switch (props.options?.series[0]?.type) {
     case 'pie':
       sub = pieOpts;
+      break;
+    case 'radar':
       break;
     default:
       sub = lineOrBarOpts;
@@ -128,6 +130,7 @@ watch(
   (newVal, oldVal) => {
     // 当 options 发生变化时，更新图表
     const finalOptions = setOptions();
+    console.log(finalOptions)
     echartInstance.setOption(finalOptions, true);
   }
 );

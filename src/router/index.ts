@@ -154,6 +154,14 @@ export const wholeMenuRouterMap: RouteRecordRaw[] = [
         }
       },
       {
+        path: 'chart',
+        component: () => import('@/views/example/chart/index.vue'),
+        name: 'chartExample',
+        meta: {
+          title: 'echarts组件'
+        }
+      },
+      {
         path: 'map',
         component: () => import('@/views/example/map/index.vue'),
         name: 'mapExample',
