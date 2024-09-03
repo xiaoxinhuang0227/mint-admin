@@ -62,6 +62,9 @@ const { allSchemas } = useCrudSchemas(crudSchemas);
 const { getElTableExpose } = tableMethods;
 const loadOption = () => {
   option.value = {
+    title: {
+      text: '旭日图'
+    },
     series: {
       type: 'sunburst',
       data: chartData,
@@ -71,7 +74,7 @@ const loadOption = () => {
         borderWidth: 2
       },
       label: {
-        show: false
+        show: false,
       }
     },
     tooltip: {
@@ -81,9 +84,11 @@ const loadOption = () => {
       feature: {
         dataView: { show: false }
       }
+    },
+    xAxis: {
+      show: false
     }
   }
-  console.log(option.value)
 }
 
 onMounted(() => {
@@ -114,19 +119,33 @@ const setTableHighlight = async (row) => {
   const elRef = await getElTableExpose();
   elRef.setCurrentRow(row);
 }
+
+const tableCellMouseEnter = (row) => {
+  sunburstRef?.value?.dispatchAction({
+    type: 'highlight',
+    name: row.name
+  })
+}
+
+const tableCellMouseLeave = (row) => {
+  sunburstRef?.value?.dispatchAction({
+    type: 'downplay',
+    name: row.name
+  })
+}
 </script>
 
 <template>
   <div class="flex">
     <Echart
-      class="mr-5"
+      class="mr-5 flex-shrink-0"
       v-if="option"
       ref="sunburstRef"
       @mouseover="chartMouseOver"
       @mouseout="chartMouseOut"
       :options="option"
-      height="300px"
       width="300px"
+      height="300px"
     ></Echart>
     <Table
       class="flex-1"
@@ -135,6 +154,8 @@ const setTableHighlight = async (row) => {
       @register="tableRegister"
       :defaultExpandAll="true"
       :highlightCurrentRow="true"
+      @mouseEnter="tableCellMouseEnter"
+      @mouseLeave="tableCellMouseLeave"
     ></Table>
   </div>
 </template>

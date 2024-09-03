@@ -21,3 +21,7 @@
 .el-table__row.current-row td{
   background-color: #9ebdff !important;
 }
+
+.el-table--enable-row-hover .el-table__body tr:hover>td.el-table__cell {
+  background-color: #9ebdff !important;
+}

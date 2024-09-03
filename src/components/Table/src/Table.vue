@@ -81,7 +81,7 @@ export default defineComponent({
       })
     },
   },
-  emits: ['update:pageSize', 'update:currentPage', 'register', 'refresh'],
+  emits: ['update:pageSize', 'update:currentPage', 'register', 'refresh', 'mouseEnter', 'mouseLeave'],
   setup(props, { attrs, emit, slots, expose }) {
     const tableSlots = {};
     const pageSizeRef = ref(props.pageSize);
@@ -194,6 +194,14 @@ export default defineComponent({
       emit('update:currentPage', val);
     }
 
+    const handleTableCellMouseEnter = (row: any) => {
+      emit('mouseEnter', row);
+    }
+
+    const handleTableCellMouseLeave = (row: any) => {
+      emit('mouseLeave', row);
+    }
+
     const renderTableColumn = (columnsChildren?: TableColumn[]) => {
       const {
         columns,
@@ -264,7 +272,13 @@ export default defineComponent({
     return () => {
       return (
         <div v-loading={ unref(getProps).loading }>
-          <el-table ref={ elTableRef } data={ unref(getProps).data } { ...unref(getBindValue) }>
+          <el-table
+            ref={ elTableRef }
+            data={ unref(getProps).data }
+            { ...unref(getBindValue) }
+            onCellMouseEnter={ handleTableCellMouseEnter }
+            onCellMouseLeave={ handleTableCellMouseLeave }
+          >
             {{
               default: () => renderTableColumn(),
               ...tableSlots

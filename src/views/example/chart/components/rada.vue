@@ -69,6 +69,6 @@ loadOption();
 
 <template>
   <div>
-    <Echart :options="option"></Echart>
+    <Echart :options="option" height="300px"></Echart>
   </div>
 </template>

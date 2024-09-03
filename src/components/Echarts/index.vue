@@ -109,11 +109,13 @@ const resizeHandler = debounce(() => {
 
 const setOptions = () => {
   let sub = {};
-  switch (props.options?.series[0]?.type) {
+  const series = props.options?.series;
+  switch (series.type || series[0]?.type) {
     case 'pie':
       sub = pieOpts;
       break;
     case 'radar':
+      break;
     case 'sunburst':
       break;
     default:
@@ -154,11 +156,19 @@ async function initializeChart() {
   });
 }
 
+const dispatchAction = (options) => {
+  echartInstance?.dispatchAction(options);
+}
+
 // 组件卸载时销毁 ECharts 实例
 onBeforeUnmount(() => {
   window.removeEventListener('resize', resizeHandler)
   echartInstance?.dispose();
 });
+
+defineExpose({
+  dispatchAction
+})
 
 </script>
 
