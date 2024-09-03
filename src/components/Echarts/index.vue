@@ -15,6 +15,8 @@ const props = defineProps({
   }
 });
 
+const $emit = defineEmits(['click', 'mouseover', 'mouseout'])
+
 const commonOptions = {
   // 直角坐标系网格
   grid: {
@@ -112,6 +114,7 @@ const setOptions = () => {
       sub = pieOpts;
       break;
     case 'radar':
+    case 'sunburst':
       break;
     default:
       sub = lineOrBarOpts;
@@ -130,7 +133,7 @@ watch(
   (newVal, oldVal) => {
     // 当 options 发生变化时，更新图表
     const finalOptions = setOptions();
-    console.log(finalOptions)
+    console.log('finalOptions', finalOptions)
     echartInstance.setOption(finalOptions, true);
   }
 );
@@ -139,15 +142,24 @@ async function initializeChart() {
   const finalOptions = setOptions();
   echartInstance = echarts.init(echartRef.value);
   echartInstance.setOption(finalOptions, true);
+  
+  echartInstance.on('click', (params) => {
+    $emit('click', params)
+  });
+  echartInstance.on('mouseover', (params) => {
+    $emit('mouseover', params)
+  });
+  echartInstance.on('mouseout', (params) => {
+    $emit('mouseout', params)
+  });
 }
 
 // 组件卸载时销毁 ECharts 实例
 onBeforeUnmount(() => {
   window.removeEventListener('resize', resizeHandler)
-  if (echartInstance !== null) {
-    echartInstance.dispose();
-  }
+  echartInstance?.dispose();
 });
+
 </script>
 
 <template>

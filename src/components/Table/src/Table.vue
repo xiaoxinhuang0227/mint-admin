@@ -52,6 +52,7 @@ export default defineComponent({
     emptyText: propTypes.string.def('暂无数据'),
     rowKey: propTypes.string.def('id'),
     defaultExpandAll: propTypes.bool.def(false),
+    highlightCurrentRow: propTypes.bool.def(false),
     tooltipEffect: {
       type: String as PropType<'dark' | 'light'>,
       default: 'dark'

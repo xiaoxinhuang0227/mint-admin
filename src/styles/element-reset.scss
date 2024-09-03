@@ -17,3 +17,7 @@
 .el-row {
   margin: 0 !important;
 }
+
+.el-table__row.current-row td{
+  background-color: #9ebdff !important;
+}

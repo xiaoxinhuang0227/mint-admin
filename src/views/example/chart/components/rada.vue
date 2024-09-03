@@ -28,7 +28,7 @@ const loadOption = () => {
       value: legendName.map(key => itemData[key]),
       name: item,
       areaStyle: {
-        color: 'rgba(55, 130, 255, 0.8)'
+        color: 'rgba(55, 130, 255, 0.1)'
       }
     }
   })
