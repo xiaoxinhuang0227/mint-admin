@@ -12,6 +12,7 @@ const chartData = [
   {
     id: 1,
     name: '一级1',
+    value: 25,
     children: [
       {
         id: 2,
@@ -28,6 +29,7 @@ const chartData = [
   {
     id: 4,
     name: '一级2',
+    value: 12,
     children: [
       {
         id: 5,

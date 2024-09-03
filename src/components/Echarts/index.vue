@@ -142,6 +142,7 @@ watch(
 async function initializeChart() {
   await nextTick(); // 等待组件渲染完成
   const finalOptions = setOptions();
+  console.log('finalOptions', finalOptions)
   echartInstance = echarts.init(echartRef.value);
   echartInstance.setOption(finalOptions, true);
   

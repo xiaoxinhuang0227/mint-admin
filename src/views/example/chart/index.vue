@@ -1,6 +1,7 @@
 <script setup>
 import Rada from './components/rada.vue';
 import Sunburst from './components/sunburst.vue';
+import StackBar from './components/stackBar.vue';
 </script>
 
 <template>
@@ -15,6 +16,14 @@ import Sunburst from './components/sunburst.vue';
         <ElCard shadow="never">
           <Sunburst></Sunburst>
         </ElCard>
+      </ElCol>
+    </ElRow>
+    <ElRow :gutter="20">
+      <ElCol :span="24">
+        <ElCard shadow="never" class="mt-5">
+          <StackBar></StackBar>
+        </ElCard>
+        
       </ElCol>
     </ElRow>
   </div>
