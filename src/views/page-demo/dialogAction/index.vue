@@ -1,14 +1,14 @@
 <script setup lang="tsx">
-import { Search } from '@/components/Search'
-import Dialog from '@/components/Dialog/index.vue'
-import { Table } from '@/components/Table'
-import TableAPI, { ITableResult, ITableData } from '@/api/table'
-import { useTable } from '@/hooks/useTable'
-import { ref, unref, reactive } from 'vue'
-import Write from './components/write.vue'
-import Detail from './components/detail.vue'
-import Guide from './components/guide.vue'
-import { CrudSchema, useCrudSchemas } from '@/hooks/useCrudSchemas'
+import { Search } from '@/components/Search';
+import Dialog from '@/components/Dialog/index.vue';
+import { Table } from '@/components/Table';
+import TableAPI, { ITableResult, ITableData } from '@/api/table';
+import { useTable } from '@/hooks/useTable';
+import { ref, unref, reactive } from 'vue';
+import Write from './components/write.vue';
+import Detail from './components/detail.vue';
+import Guide from './components/guide.vue';
+import { CrudSchema, useCrudSchemas } from '@/hooks/useCrudSchemas';
 import { ElInputNumber } from 'element-plus';
 
 const ids = ref<string[]>([]);

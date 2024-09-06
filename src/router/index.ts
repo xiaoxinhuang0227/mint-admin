@@ -196,6 +196,14 @@ export const wholeMenuRouterMap: RouteRecordRaw[] = [
         meta: {
           title: '状态看板'
         }
+      },
+      {
+        path: '3d',
+        component: () => import('@/views/page-demo/3D/index.vue'),
+        name: '3DPageDemo',
+        meta: {
+          title: 'Three3D'
+        }
       }
     ]
   },
