@@ -1,22 +1,20 @@
 <script setup>
 import { onMounted, ref } from 'vue';
 import * as THREE from 'three';
-// 引入扩展库OrbitControls.js
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 // 引入扩展库GLTFLoader.js
-// import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import threeGuide from './components/threeGuide.vue';
-
-const cameraPosition = ref();
+import { initHelper } from './utils/helper';
+import { initCamera, initLight } from './utils/tool';
+const cameraPosition = ref(null);
 
 onMounted(() => {
   initWebgl({
     // 定义相机输出画布的尺寸(单位:像素px)
     canvas: { width: 800, height: 500 },
-    mesh: { meshPosition: { x: 0, y: 0, z: 0}, meshSize: { length: 100, width: 100, height: 100 } },
+    mesh: { meshPosition: { x: 50, y: 50, z: 50}, meshSize: { length: 100, width: 100, height: 100 } },
     lightPosition: { x: 200, y: 200, z: 200 },
-    cameraPosition: { x: 200, y: 300, z: 300 },
+    cameraPosition: { x: 500, y: 500, z: 1000 },
   });
 })
 
@@ -32,11 +30,10 @@ const initWebgl = ({
 
   const mesh = initMesh({
     position: meshPosition,
-    size: meshSize
+    size: meshSize,
+    scene
   });
-
-
-  scene.add(mesh);
+  initPoints({ scene });
   
   const pointLight = initLight({ scene, position: lightPosition });
 
@@ -52,17 +49,7 @@ const initWebgl = ({
   needHelper && initHelper({ scene, camera, mesh, pointLight, renderer });
 }
 
-const initHelper = ({ scene, camera, mesh, renderer, pointLight}) => {
-  initGUI({ mesh });
-  setAxesHelper({ scene });
-  setCameraHelper({ scene, camera, renderer });
-
-  // 光源辅助观察
-  const pointLightHelper = new THREE.PointLightHelper(pointLight, 10);
-  scene.add(pointLightHelper);
-}
-
-const initRender = ({ scene, camera, canvas: { width, height }, bgColor = 0x444444 }) => {
+const initRender = ({ scene, camera, canvas: { width, height }, bgColor = 0x000000 }) => {
   // 创建渲染器对象
   const renderer = new THREE.WebGLRenderer();
 
@@ -72,8 +59,8 @@ const initRender = ({ scene, camera, canvas: { width, height }, bgColor = 0x4444
 
   renderer.setSize(width, height); //设置three.js渲染区域的尺寸(像素px)
   function animate() {
-      requestAnimationFrame(animate);
-      renderer.render(scene, camera); //执行渲染操作，可理解为相机按下快门的操作
+    requestAnimationFrame(animate);
+    renderer.render(scene, camera); //执行渲染操作，可理解为相机按下快门的操作
   }
   animate();
 
@@ -83,7 +70,7 @@ const initRender = ({ scene, camera, canvas: { width, height }, bgColor = 0x4444
   return renderer;
 }
 
-const initMesh = ({ color = 0x00ffff, opacity = 0.5, transparent = true, size,  position }) => {
+const initMesh = ({ scene, color = 0x00ffff, opacity = 0.5, transparent = true, size,  position }) => {
   const { length, width, height } = size;
   const { x, y, z } = position;
   //创建一个长方体几何对象Geometry
@@ -101,68 +88,46 @@ const initMesh = ({ color = 0x00ffff, opacity = 0.5, transparent = true, size,  
   // 设置模型mesh的xyz坐标
   mesh.position.set(x, y, z);
 
+  scene.add(mesh);
   return mesh;
 }
 
-const initLight = ({ scene, position: { x = 0, y = 0, z = 0} }) => {
-  const pointLight = new THREE.PointLight(0xffffff, 1.0);
-  //点光源位置
-  pointLight.position.set(x, y, z);//点光源放在x轴上
-  // 光源添加到场景
-  scene.add(pointLight);
+const initPoints = ({ scene }) => {
+  //创建一个空的几何体对象
+  const geometry = new THREE.BufferGeometry(); 
 
-  return pointLight;
+  //类型化数组创建顶点数据
+  const vertices = new Float32Array([
+      0, 0, 0,
+      100, 0, 0,
+      100, 100, 0,
+      100, 100, 100,
+      0, 100, 0,
+      0, 100, 100,
+      0, 0, 100,
+      100, 0, 100,
+  ]);
+
+  // 创建属性缓冲区对象
+  //3个为一组，表示一个顶点的xyz坐标
+  const attribue = new THREE.BufferAttribute(vertices, 3); 
+  // 设置几何体attributes属性的位置属性
+  geometry.attributes.position = attribue;
+  // 点渲染模式
+  const material = new THREE.PointsMaterial({
+      color: 0xffff00,
+      size: 10.0 //点对象像素尺寸
+  }); 
+  const object = new THREE.Points(geometry, material); //点模型对象
+  // 线材质对象
+  // 创建线模型对象
+  // const object = new THREE.Line(geometry, material);
+
+  object.position.set(0, 0, 0);
+
+  scene.add(object);
 }
 
-const initCamera = ({ width, height, position: { x = 0, y = 0, z = 0 }, targetPosition }) => {
-  // 30:视场角度, width / height:Canvas画布宽高比, 1:近裁截面, 3000：远裁截面
-  const camera = new THREE.PerspectiveCamera(30, width / height, 1, 3000);
-
-  //相机在Three.js三维坐标系中的位置
-  // 根据需要设置相机位置具体值
-  camera.position.set(x, y, z); 
-
-  //lookAt相机观察目标，指向mesh对应的位置
-  camera.lookAt(targetPosition);
-
-  return camera;
-}
-
-const setAxesHelper = ({ scene }) => {
-  // AxesHelper：辅助观察的坐标系，参数表示坐标系坐标轴线段尺寸大小，你可以根据需要改变尺寸
-  const axesHelper = new THREE.AxesHelper(150);
-  scene.add(axesHelper);
-}
-const setCameraHelper = ({ scene, camera, renderer }) => {
-  // 设置相机控件轨道控制器OrbitControls
-  const controls = new OrbitControls(camera, renderer.domElement);
-  // 如果OrbitControls改变了相机参数，重新调用渲染器渲染三维场景
-  controls.addEventListener('change', () => {
-    // 浏览器控制台查看相机位置变化
-    cameraPosition.value = camera.position;
-    // console.log('cameraPosition', cameraPosition.value);
-    renderer.render(scene, camera); //执行渲染操作
-  });//监听鼠标、键盘事件
-}
-
-const initGUI = ({ mesh }) => {
-  const gui = new GUI();
-  //改变交互界面style属性
-  gui.domElement.style.right = '0px';
-  gui.domElement.style.width = '300px';
-
-  const obj = {
-    color:0x00ffff,
-  };
-
-  // gui界面上增加交互界面，改变obj对应属性
-  gui.add(mesh.position, 'x', 0, 100).name('x坐标');
-  gui.add(mesh.position, 'y', 0, 50).name('y坐标');
-  gui.add(mesh.position, 'z', 0, 60).name('z坐标');
-  gui.addColor(obj, 'color').name('材质颜色').onChange(function(value){
-    mesh.material.color.set(value);
-  });
-}
 </script>
 
 <template>
@@ -174,4 +139,7 @@ const initGUI = ({ mesh }) => {
 </template>
 
 <style lang="scss" scoped>
+#webgl {
+  border: 1px solid #eee;
+}
 </style>
