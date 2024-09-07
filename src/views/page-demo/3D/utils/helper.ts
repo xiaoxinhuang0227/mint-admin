@@ -18,7 +18,7 @@ export const initGUI = ({ mesh }) => {
   const gui = new GUI();
   //改变交互界面style属性
   gui.domElement.style.left = '184px';
-  gui.domElement.style.top = '50px';
+  gui.domElement.style.top = '52px';
   gui.domElement.style.width = '200px';
 
   const obj = {
