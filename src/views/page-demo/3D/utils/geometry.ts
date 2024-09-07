@@ -46,7 +46,6 @@ export const choseMaterial = ({ materialType, materialConf, geometry }) => {
       break;
     case 'Points':
       const { verticesData, ...others } = materialConf;
-      console.log(verticesData, others)
       const vertices = new Float32Array(verticesData);
       //3个为一组，表示一个顶点的xyz坐标
       const attribue = new THREE.BufferAttribute(vertices, 3); 

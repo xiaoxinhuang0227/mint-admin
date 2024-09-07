@@ -14,12 +14,36 @@ export const initCamera = ({ width, height, position: { x = 0, y = 0, z = 0 }, t
   return camera;
 }
 
-export const initLight = ({ scene, position: { x = 0, y = 0, z = 0} }) => {
-  const pointLight = new THREE.PointLight(0xffffff, 1.0);
+export const initLight = ({ scene, lightType, position: { x = 0, y = 0, z = 0} }) => {
+  const light = choseLight({ lightType });
   //点光源位置
-  pointLight.position.set(x, y, z);//点光源放在x轴上
+  light.position.set(x, y, z);//点光源放在x轴上
   // 光源添加到场景
-  scene.add(pointLight);
+  scene.add(light);
 
-  return pointLight;
+  return light;
+}
+
+export const choseLight = ({ lightType, lightConf = { color: 0xffffff, intensity: 1 } }) => {
+  const { color, intensity } = lightConf;
+  let light;
+  switch (lightType) {
+    case 'PointLight':
+      // 点光源
+      light = new THREE.PointLight(color, intensity);
+      break;
+    case 'DirectionalLight':
+      // 平行光
+      light = new THREE.DirectionalLight(color, intensity);
+      break;
+    case 'SpotLight':
+      // 聚光灯
+      light = new THREE.SpotLight(color, intensity);
+      break;
+    default:
+      // 环境光
+      light = new THREE.AmbientLight(color, intensity);
+      break;
+  }
+  return light;
 }

@@ -3,16 +3,30 @@ import * as THREE from 'three';
 // 引入扩展库OrbitControls.js
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
-export const initHelper = ({ scene, camera, mesh, renderer, pointLight}) => {
+export const initHelper = ({ scene, camera, mesh, renderer, light, lightType}) => {
   initGUI({ mesh });
   setAxesHelper({ scene });
   setCameraHelper({ scene, camera, renderer });
-
-  // 光源辅助观察
-  const pointLightHelper = new THREE.PointLightHelper(pointLight, 10);
-  scene.add(pointLightHelper);
+  setLightHelper({ scene, light, lightType });
 }
 
+export const setLightHelper = ({ scene, light, lightType }) => {
+  let lightHelper;
+  switch (lightType) {
+    case 'PointLight':
+      lightHelper = new THREE.PointLightHelper(light, 10);
+      break;
+    case 'DirectionalLight':
+      lightHelper = new THREE.DirectionalLightHelper(light, 10);
+      break;
+    case 'SpotLight':
+      lightHelper = new THREE.SpotLightHelper(light);
+      break;
+    default:
+      break;
+  }
+  scene.add(lightHelper);
+}
 
 export const initGUI = ({ mesh }) => {
   const gui = new GUI();

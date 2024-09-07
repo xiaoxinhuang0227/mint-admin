@@ -32,15 +32,15 @@ onMounted(() => {
     // 定义相机输出画布的尺寸(单位:像素px)
     canvas: { width: 1682, height: 500 },
     meshConf: MESH_CONF,
-    lightPosition: { x: 0, y: 200, z: 200 },
-    cameraPosition: { x: 500, y: 500, z: 1000 },
+    lightConf: { lightType: 'PointLight', position: { x: 0, y: 200, z: 200 } },
+    cameraPosition: { x: 0, y: 500, z: 1000 },
   });
 })
 
 const initWebgl = ({ 
   canvas: { width, height },
   meshConf,
-  lightPosition,
+  lightConf,
   cameraPosition,
   needHelper = true
 }) => {
@@ -52,7 +52,7 @@ const initWebgl = ({
   })
   const mesh = meshRes[2];
 
-  const pointLight = initLight({ scene, position: lightPosition });
+  const light = initLight({ scene, ...lightConf });
 
   const camera = initCamera({
     width,
@@ -63,7 +63,7 @@ const initWebgl = ({
   
   const renderer = initRender({ scene, camera, canvas: { width, height } });
   
-  needHelper && initHelper({ scene, camera, mesh, pointLight, renderer });
+  needHelper && initHelper({ scene, camera, mesh, light, lightType: lightConf.lightType, renderer });
 }
 
 const initRender = ({ scene, camera, canvas: { width, height }, bgColor = 0x000000 }) => {
@@ -86,44 +86,6 @@ const initRender = ({ scene, camera, canvas: { width, height }, bgColor = 0x0000
 
   return renderer;
 }
-
-
-const initPoints = ({ scene }) => {
-  //创建一个空的几何体对象
-  const geometry = new THREE.BufferGeometry(); 
-
-  //类型化数组创建顶点数据
-  const vertices = new Float32Array([
-      0, 0, 0,
-      100, 0, 0,
-      100, 100, 0,
-      100, 100, 100,
-      0, 100, 0,
-      0, 100, 100,
-      0, 0, 100,
-      100, 0, 100,
-  ]);
-
-  // 创建属性缓冲区对象
-  //3个为一组，表示一个顶点的xyz坐标
-  const attribue = new THREE.BufferAttribute(vertices, 3); 
-  // 设置几何体attributes属性的位置属性
-  geometry.attributes.position = attribue;
-  // 点渲染模式
-  const material = new THREE.PointsMaterial({
-      color: 0xffff00,
-      size: 10.0 //点对象像素尺寸
-  }); 
-  const object = new THREE.Points(geometry, material); //点模型对象
-  // 线材质对象
-  // 创建线模型对象
-  // const object = new THREE.Line(geometry, material);
-
-  object.position.set(0, 0, 0);
-
-  scene.add(object);
-}
-
 </script>
 
 <template>
