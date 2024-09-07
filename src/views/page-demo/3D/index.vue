@@ -6,13 +6,21 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import threeGuide from './components/threeGuide.vue';
 import { initHelper } from './utils/helper';
 import { initCamera, initLight } from './utils/tool';
+import { initMesh } from './utils/geometry';
 const cameraPosition = ref(null);
 
+const MESH_CONF = [
+  { geometryType: 'PlaneGeometry', materialType: 'MeshBasicMaterial', position: { x: -100, y: 50, z: 50}, size: { width: 100, height: 100 } },
+  { geometryType: 'circleGeometry', materialType: 'MeshLamberMaterial', position: { x: -250, y: 50, z: 50}, size: { radius: 50 } },
+  { geometryType: 'BoxGeometry', materialType: 'MeshPhongMaterial', position: { x: 50, y: 50, z: 50}, size: { width: 100, height: 100, length: 100 } },
+  { geometryType: 'SphereGeometry', materialType: 'MeshStandardMaterial', position: { x: 200, y: 50, z: 50}, size: { radius: 50 } },
+  { geometryType: 'CylinderGeometry', materialType: 'MeshPhysicalMaterial', position: { x: 350, y: 50, z: 50}, size: { radiusTop: 20, radiusBottom: 50, height: 100 } },
+]
 onMounted(() => {
   initWebgl({
     // 定义相机输出画布的尺寸(单位:像素px)
-    canvas: { width: 800, height: 500 },
-    mesh: { meshPosition: { x: 50, y: 50, z: 50}, meshSize: { length: 100, width: 100, height: 100 } },
+    canvas: { width: 1000, height: 500 },
+    meshConf: MESH_CONF,
     lightPosition: { x: 200, y: 200, z: 200 },
     cameraPosition: { x: 500, y: 500, z: 1000 },
   });
@@ -20,7 +28,7 @@ onMounted(() => {
 
 const initWebgl = ({ 
   canvas: { width, height },
-  mesh: { meshPosition, meshSize },
+  meshConf,
   lightPosition,
   cameraPosition,
   needHelper = true
@@ -28,11 +36,13 @@ const initWebgl = ({
   // 创建3D场景对象Scene
   const scene = new THREE.Scene();
 
-  const mesh = initMesh({
-    position: meshPosition,
-    size: meshSize,
-    scene
-  });
+  const meshRes = meshConf.map(item => {
+    return initMesh({ scene, ...item });
+  })
+  console.log(meshRes)
+
+  const mesh = meshRes[2];
+  
   initPoints({ scene });
   
   const pointLight = initLight({ scene, position: lightPosition });
@@ -70,27 +80,6 @@ const initRender = ({ scene, camera, canvas: { width, height }, bgColor = 0x0000
   return renderer;
 }
 
-const initMesh = ({ scene, color = 0x00ffff, opacity = 0.5, transparent = true, size,  position }) => {
-  const { length, width, height } = size;
-  const { x, y, z } = position;
-  //创建一个长方体几何对象Geometry
-  const geometry = new THREE.BoxGeometry(length, width, height); 
-
-  //创建一个材质对象Material
-  const material = new THREE.MeshBasicMaterial({
-    color,
-    transparent,//开启透明
-    opacity,//设置透明度
-  }); 
-
-  // 两个参数分别为几何体geometry、材质material
-  const mesh = new THREE.Mesh(geometry, material); //网格模型对象Mesh
-  // 设置模型mesh的xyz坐标
-  mesh.position.set(x, y, z);
-
-  scene.add(mesh);
-  return mesh;
-}
 
 const initPoints = ({ scene }) => {
   //创建一个空的几何体对象
