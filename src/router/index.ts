@@ -202,8 +202,26 @@ export const wholeMenuRouterMap: RouteRecordRaw[] = [
         component: () => import('@/views/page-demo/3D/index.vue'),
         name: '3DPageDemo',
         meta: {
-          title: 'Three3D'
-        }
+          title: '3D'
+        },
+        children: [
+          {
+            path: 'basic',
+            component: () => import('@/views/page-demo/3D/basic.vue'),
+            name: 'basic',
+            meta: {
+              title: '基础实例'
+            }
+          },
+          {
+            path: 'model',
+            component: () => import('@/views/page-demo/3D/model.vue'),
+            name: 'model',
+            meta: {
+              title: '模型加载'
+            }
+          }
+        ]
       }
     ]
   },
