@@ -18,7 +18,15 @@ const verticesData =  [
   100, 0, 100,
 ]
 const MESH_CONF = [
-  { geometryType: 'PlaneGeometry', materialType: 'MeshBasicMaterial', position: { x: -100, y: 50, z: 50}, size: { width: 100, height: 100 } },
+  { geometryType: 'PlaneGeometry',
+    materialType: 'MeshBasicMaterial',
+    position: { x: -100, y: 50, z: 50},
+    size: { width: 100, height: 100 },
+    materialParams: {
+      textureUrl: '/mint-admin/texture/floor-1.jpg',
+      repeat: { x: 2, y: 2 }
+    }
+  },
   {
     geometryType: 'CircleGeometry',
     materialType: 'MeshBasicMaterial',
@@ -37,7 +45,7 @@ const MESH_CONF = [
     position: { x: 200, y: 50, z: 50},
     size: { radius: 50 },
     materialParams: {
-      texture: '/mint-admin/texture/map.jpeg',
+      textureUrl: '/mint-admin/texture/map.jpeg',
     }
   },
   {

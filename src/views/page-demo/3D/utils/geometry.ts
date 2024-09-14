@@ -5,8 +5,8 @@ export const initMesh = ({ geometryType, materialType, scene, materialParams, si
     //创建一个长方体几何对象Geometry
     const geometry = choseGeometry({ geometryType, size });
     let staticMaterialConf = {};
-    if (materialParams?.texture) {
-      staticMaterialConf = await loadTexture(materialParams.texture);
+    if (materialParams?.textureUrl) {
+      staticMaterialConf = await loadTexture(materialParams);
     } else {
       staticMaterialConf = { color: 0x00ffff }
     }
@@ -35,10 +35,19 @@ export const initMesh = ({ geometryType, materialType, scene, materialParams, si
   
 }
 
-export const loadTexture = (textureUrl) => {
+export const loadTexture = ({ textureUrl, repeat }) => {
   return new Promise((resolve) => {
     const textureLoader = new THREE.TextureLoader();
+
     textureLoader.load(textureUrl, function (texture) {
+      if (repeat) {
+        // 设置阵列模式
+        texture.wrapS = THREE.RepeatWrapping;
+        texture.wrapT = THREE.RepeatWrapping;
+        // uv两个方向纹理重复数量
+        texture.repeat.set(repeat.x, repeat.y);
+      }
+
       resolve(
         {
           map: texture,
