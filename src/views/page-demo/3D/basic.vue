@@ -19,10 +19,33 @@ const verticesData =  [
 ]
 const MESH_CONF = [
   { geometryType: 'PlaneGeometry', materialType: 'MeshBasicMaterial', position: { x: -100, y: 50, z: 50}, size: { width: 100, height: 100 } },
-  { geometryType: 'CircleGeometry', materialType: 'MeshLamberMaterial', position: { x: -250, y: 50, z: 50}, size: { radius: 50 } },
-  { geometryType: 'BoxGeometry', materialType: 'MeshPhongMaterial', position: { x: 50, y: 50, z: 50}, size: { width: 100, height: 100, length: 100 } },
-  { geometryType: 'SphereGeometry', materialType: 'MeshStandardMaterial', position: { x: 200, y: 50, z: 50}, size: { radius: 50 } },
-  { geometryType: 'CylinderGeometry', materialType: 'MeshPhysicalMaterial', position: { x: 350, y: 50, z: 50}, size: { radiusTop: 20, radiusBottom: 50, height: 100 } },
+  {
+    geometryType: 'CircleGeometry',
+    materialType: 'MeshBasicMaterial',
+    position: { x: -250, y: 50, z: 50},
+    size: { radius: 50 },
+  },
+  {
+    geometryType: 'BoxGeometry',
+    materialType: 'MeshPhongMaterial',
+    position: { x: 50, y: 50, z: 50},
+    size: { width: 100, height: 100,length: 100 }
+  },
+  {
+    geometryType: 'SphereGeometry',
+    materialType: 'MeshStandardMaterial',
+    position: { x: 200, y: 50, z: 50},
+    size: { radius: 50 },
+    materialParams: {
+      texture: '/mint-admin/texture/map.jpeg',
+    }
+  },
+  {
+    geometryType: 'CylinderGeometry',
+    materialType: 'MeshPhysicalMaterial',
+    position: { x: 350, y: 50, z: 50},
+    size: { radiusTop: 20, radiusBottom: 50, height: 100 },
+  },
   { geometryType: 'BufferGeometry', materialType: 'Points', position: { x: 0, y: 0, z: 0}, materialParams: { verticesData, color: 0xffff00, size: 10.0 }  },
 ]
 onMounted(() => {
@@ -30,12 +53,12 @@ onMounted(() => {
     // 定义相机输出画布的尺寸(单位:像素px)
     canvas: { width: 1682, height: 500 },
     meshConf: MESH_CONF,
-    lightConf: { lightType: 'PointLight', position: { x: 0, y: 200, z: 200 } },
-    cameraPosition: { x: 0, y: 500, z: 1000 },
+    lightConf: { lightType: 'AmbientLight', position: { x: 0, y: 200, z: 200 } },
+    cameraPosition: { x: 0, y: 100, z: 500 },
   });
 })
 
-const initWebgl = ({ 
+const initWebgl = async ({ 
   canvas: { width, height },
   meshConf,
   lightConf,
@@ -44,10 +67,14 @@ const initWebgl = ({
 }) => {
   // 创建3D场景对象Scene
   const scene = new THREE.Scene();
-
-  const meshRes = meshConf.map(item => {
-    return initMesh({ scene, ...item });
+  
+  let meshPromiseRes = [];
+  meshConf.map((item) => {
+    const object = initMesh({ scene, ...item });
+    console.log('object', object)
+    meshPromiseRes.push(object);
   })
+  const meshRes = await Promise.all(meshPromiseRes);
   const mesh = meshRes[2];
 
   const light = initLight({ scene, ...lightConf });

@@ -50,7 +50,7 @@ const initModel = ({scene}) => {
     // 创建GLTF加载器对象
     const loader = new GLTFLoader();
     loader.load(
-      '/mint-admin/model/scene.gltf',
+      '/mint-admin/model/cat/scene.gltf',
       function (gltf) {
         gltf.scene.position.set(0, 0, 0);
         // 返回的场景对象gltf.scene插入到threejs场景中

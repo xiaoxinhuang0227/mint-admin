@@ -1,30 +1,53 @@
 
 import * as THREE from 'three';
 export const initMesh = ({ geometryType, materialType, scene, materialParams, size, position }) => {
-  //创建一个长方体几何对象Geometry
-  const geometry = choseGeometry({ geometryType, size });
+  return new Promise((async (resolve) => {
+    //创建一个长方体几何对象Geometry
+    const geometry = choseGeometry({ geometryType, size });
+    let staticMaterialConf = {};
+    if (materialParams?.texture) {
+      staticMaterialConf = await loadTexture(materialParams.texture);
+    } else {
+      staticMaterialConf = { color: 0x00ffff }
+    }
 
-  const materialConf = Object.assign({}, { color: 0x00ffff }, materialParams);
+    const materialConf = Object.assign({}, staticMaterialConf, materialParams);
+    //创建一个材质对象Material
+    const material = choseMaterial({ materialType, materialConf, geometry });
+    
+    // 两个参数分别为几何体geometry、材质material
+    let object;
+    switch (materialType) {
+      case 'Points':
+        object = new THREE.Points(geometry, material);
+        break;
+      default:
+        object = new THREE.Mesh(geometry, material); //网格模型对象Mesh
+        break;
+    }
+    const { x, y, z } = position;
+    // 设置模型mesh的xyz坐标
+    object.position.set(x, y, z);
 
-  //创建一个材质对象Material
-  const material = choseMaterial({ materialType, materialConf, geometry });
+    scene.add(object);
+    resolve(object);
+  }))
   
-  // 两个参数分别为几何体geometry、材质material
-  let object;
-  switch (materialType) {
-    case 'Points':
-      object = new THREE.Points(geometry, material);
-      break;
-    default:
-      object = new THREE.Mesh(geometry, material); //网格模型对象Mesh
-      break;
-  }
-  const { x, y, z } = position;
-  // 设置模型mesh的xyz坐标
-  object.position.set(x, y, z);
+}
 
-  scene.add(object);
-  return object;
+export const loadTexture = (textureUrl) => {
+  return new Promise((resolve) => {
+    const textureLoader = new THREE.TextureLoader();
+    textureLoader.load(textureUrl, function (texture) {
+      resolve(
+        {
+          map: texture,
+          side: THREE.DoubleSide
+        }
+      )
+    })
+  })
+  
 }
 
 export const choseMaterial = ({ materialType, materialConf, geometry }) => {

@@ -41,7 +41,7 @@ export const choseLight = ({ lightType, lightConf = { color: 0xffffff, intensity
       light = new THREE.SpotLight(color, intensity);
       break;
     default:
-      // 环境光
+      // 环境光 AmbientLight
       light = new THREE.AmbientLight(color, intensity);
       break;
   }

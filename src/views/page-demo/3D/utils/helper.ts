@@ -11,6 +11,7 @@ export const initHelper = ({ scene, camera, mesh, renderer, light, lightType}) =
 }
 
 export const setLightHelper = ({ scene, light, lightType }) => {
+  if (lightType === 'AmbientLight') return;
   let lightHelper;
   switch (lightType) {
     case 'PointLight':
@@ -29,6 +30,7 @@ export const setLightHelper = ({ scene, light, lightType }) => {
 }
 
 export const initGUI = ({ mesh }) => {
+  console.log(mesh)
   const gui = new GUI();
   //改变交互界面style属性
   gui.domElement.style.left = '184px';
@@ -36,7 +38,7 @@ export const initGUI = ({ mesh }) => {
   gui.domElement.style.width = '200px';
 
   const obj = {
-    color:0x00ffff,
+    color: mesh.material.color,
   };
 
   const meshFolder = gui.addFolder('材质');
