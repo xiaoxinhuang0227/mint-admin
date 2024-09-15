@@ -30,7 +30,6 @@ export const setLightHelper = ({ scene, light, lightType }) => {
 }
 
 export const initGUI = ({ mesh }) => {
-  console.log(mesh)
   const gui = new GUI();
   //改变交互界面style属性
   gui.domElement.style.left = '184px';

@@ -5,7 +5,6 @@ import threeGuide from './components/threeGuide.vue';
 import { initHelper } from './utils/helper';
 import { initCamera, initLight } from './utils/tool';
 import { initMesh, changeTexture } from './utils/geometry';
-const cameraPosition = ref(null);
 
 const verticesData =  [
   0, 0, 0,
@@ -77,6 +76,7 @@ onMounted(() => {
   });
 })
 
+const loading = ref(false);
 const initWebgl = async ({ 
   canvas: { width, height },
   meshConf,
@@ -84,13 +84,13 @@ const initWebgl = async ({
   cameraPosition,
   needHelper = true
 }) => {
+  loading.value = true;
   // 创建3D场景对象Scene
   const scene = new THREE.Scene();
   
   let meshPromiseRes = [];
   meshConf.map((item) => {
     const object = initMesh({ scene, ...item });
-    console.log('object', object)
     meshPromiseRes.push(object);
   })
   const meshRes = await Promise.all(meshPromiseRes);
@@ -109,6 +109,7 @@ const initWebgl = async ({
   
   needHelper && initHelper({ scene, camera, mesh, light, lightType: lightConf.lightType, renderer });
 
+  loading.value = false;
   return meshRes;
 }
 
@@ -142,7 +143,7 @@ const changeFloorTexture = async (textureConf, idx) => {
 </script>
 
 <template>
-  <div class="page-3D">
+  <div v-loading="loading" class="page-3D">
     <div id="webgl"></div>
     <div class="texture">
       地板材质选择：
@@ -160,7 +161,11 @@ const changeFloorTexture = async (textureConf, idx) => {
 </template>
 
 <style lang="scss" scoped>
+.page-3D {
+  height: 100vh;
+}
 #webgl {
+  height: 500px;
   border: 1px solid #eee;
 }
 
