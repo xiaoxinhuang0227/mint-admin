@@ -1,5 +1,7 @@
 
 import * as THREE from 'three';
+
+const textureLoader = new THREE.TextureLoader();
 export const initMesh = ({ geometryType, materialType, scene, materialParams, size, position }) => {
   return new Promise((async (resolve) => {
     //创建一个长方体几何对象Geometry
@@ -32,21 +34,12 @@ export const initMesh = ({ geometryType, materialType, scene, materialParams, si
     scene.add(object);
     resolve(object);
   }))
-  
 }
 
 export const loadTexture = ({ textureUrl, repeat }) => {
   return new Promise((resolve) => {
-    const textureLoader = new THREE.TextureLoader();
-
     textureLoader.load(textureUrl, function (texture) {
-      if (repeat) {
-        // 设置阵列模式
-        texture.wrapS = THREE.RepeatWrapping;
-        texture.wrapT = THREE.RepeatWrapping;
-        // uv两个方向纹理重复数量
-        texture.repeat.set(repeat.x, repeat.y);
-      }
+      textureRepeat({ texture, repeat });
 
       resolve(
         {
@@ -56,7 +49,24 @@ export const loadTexture = ({ textureUrl, repeat }) => {
       )
     })
   })
-  
+}
+
+export const changeTexture = ({ newTextureUrl, mesh, repeat }) => {
+  textureLoader.load(newTextureUrl, (texture) => {
+    mesh.material.map = texture;
+    textureRepeat({ texture, repeat });
+    texture.needsUpdate = true;
+  })
+}
+
+export const textureRepeat = ({ texture, repeat }) => {
+  if (repeat) {
+    // 设置阵列模式
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.RepeatWrapping;
+    // uv两个方向纹理重复数量
+    texture.repeat.set(repeat.x, repeat.y);
+  }
 }
 
 export const choseMaterial = ({ materialType, materialConf, geometry }) => {

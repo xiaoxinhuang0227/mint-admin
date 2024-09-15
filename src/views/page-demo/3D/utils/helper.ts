@@ -41,7 +41,7 @@ export const initGUI = ({ mesh }) => {
     color: mesh.material.color,
   };
 
-  const meshFolder = gui.addFolder('材质');
+  const meshFolder = gui.addFolder('参数调试');
 
   // gui界面上增加交互界面，改变obj对应属性
   meshFolder.add(mesh.position, 'x', 0, 100).name('x坐标');
