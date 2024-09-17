@@ -47,3 +47,20 @@ export const choseLight = ({ lightType, lightConf = { color: 0xffffff, intensity
   }
   return light;
 }
+
+export const downloadCanvas = ({ renderer, fileName = '3D' }) => {
+  // 创建一个超链接元素，用来下载保存数据的文件
+  const link = document.createElement('a');
+  // 通过超链接herf属性，设置要保存到文件中的数据
+  const canvas = renderer.domElement; //获取canvas对象
+  // 通过超链接herf属性，设置要保存到文件中的数据
+  link.href = canvas.toDataURL("image/png");
+  link.download = `${ fileName }.png`; //下载文件名
+  link.click(); //js代码触发超链接元素a的鼠标点击事件，开始下载文件到本地
+}
+
+export const setBox3 = ({ mesh}) => {
+  const box3 = new THREE.Box3();
+  box3.expandByObject(mesh); // 计算模型包围盒
+  console.log('查看包围盒',box3);
+}

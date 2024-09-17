@@ -3,8 +3,9 @@ import { onMounted, ref } from 'vue';
 import * as THREE from 'three';
 import threeGuide from './components/threeGuide.vue';
 import { initHelper } from './utils/helper';
-import { initCamera, initLight } from './utils/tool';
+import { initCamera, initLight, downloadCanvas } from './utils/tool';
 import { initMesh, changeTexture } from './utils/geometry';
+import { Icon } from '@/components/Icon'
 
 const verticesData =  [
   0, 0, 0,
@@ -65,15 +66,28 @@ const MESH_CONF = [
   { geometryType: 'BufferGeometry', materialType: 'Points', position: { x: 0, y: 0, z: 0}, materialParams: { verticesData, color: 0xffff00, size: 10.0 }  },
 ]
 
+const getCanvasSize = () => {
+  return {
+    width: window.innerWidth - 183,
+    height: 500
+  }
+}
+
 let meshArr = [];
-onMounted(() => {
-  meshArr = initWebgl({
+let canvasRender = null;
+const canvasWidth = getCanvasSize().width;
+const canvasHeight =  getCanvasSize().height;
+
+onMounted(async () => {
+  const renderRes = await initWebgl({
     // 定义相机输出画布的尺寸(单位:像素px)
-    canvas: { width: 1682, height: 500 },
+    canvas: { width: canvasWidth, height: canvasHeight },
     meshConf: MESH_CONF,
     lightConf: { lightType: 'AmbientLight', position: { x: 0, y: 200, z: 200 } },
     cameraPosition: { x: 0, y: 100, z: 500 },
   });
+  meshArr = renderRes.meshRes;
+  canvasRender = renderRes.renderer;
 })
 
 const loading = ref(false);
@@ -110,12 +124,15 @@ const initWebgl = async ({
   needHelper && initHelper({ scene, camera, mesh, light, lightType: lightConf.lightType, renderer });
 
   loading.value = false;
-  return meshRes;
+  return { meshRes, renderer };
 }
 
 const initRender = ({ scene, camera, canvas: { width, height }, bgColor = 0x000000 }) => {
   // 创建渲染器对象
-  const renderer = new THREE.WebGLRenderer();
+  const renderer = new THREE.WebGLRenderer({
+    //想把canvas画布上内容下载到本地，需要设置为true
+    preserveDrawingBuffer:true,
+  });
 
   // 获取你屏幕对应的设备像素比.devicePixelRatio告诉threejs,以免渲染模糊问题
   renderer.setPixelRatio(window.devicePixelRatio);
@@ -131,20 +148,35 @@ const initRender = ({ scene, camera, canvas: { width, height }, bgColor = 0x0000
   // renderer.domElement获得Canvas画布，添加到页面上
   document.getElementById('webgl').appendChild(renderer.domElement);
 
+  window.onresize = function () {
+    const width = getCanvasSize().width;
+    const height = getCanvasSize().height;
+    renderer.setSize(width, height);
+    camera.aspect = width / height;
+    camera.updateProjectionMatrix();
+  };
+
   return renderer;
 }
 
 const activeFloorIdx = ref(0);
-const changeFloorTexture = async (textureConf, idx) => {
+const changeFloorTexture = (textureConf, idx) => {
   activeFloorIdx.value = idx;
-  const objects = await meshArr;
+  const objects = meshArr;
   changeTexture({ newTextureUrl: textureConf.url, mesh: objects[0], repeat: textureConf.repeat });
+}
+
+const download = () => {
+  downloadCanvas({ renderer: canvasRender });
 }
 </script>
 
 <template>
   <div v-loading="loading" class="page-3D">
     <div id="webgl"></div>
+    <div class="tool">
+      <Icon @click="download" icon="mingcute:download-fill" color="#fff" :size="20"></Icon>
+    </div>
     <div class="texture">
       地板材质选择：
       <div
@@ -184,5 +216,11 @@ const changeFloorTexture = async (textureConf, idx) => {
     width: 100%;
     height: 100%;
   }
+}
+.tool {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  cursor: pointer;
 }
 </style>
