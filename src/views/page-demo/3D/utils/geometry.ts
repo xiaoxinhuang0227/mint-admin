@@ -14,7 +14,8 @@ export const initModel = ({ scene, modelUrl, position, scale }) => {
         gltf.scene.position.set(position.x, position.y, position.z);
         // 返回的场景对象gltf.scene插入到threejs场景中
         const object = gltf.scene;
-        object.scale.set(scale, scale, scale)
+        object.scale.set(scale, scale, scale);
+        console.log(object)
         scene.add(object);
         resolve(object);
       },
