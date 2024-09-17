@@ -59,7 +59,7 @@ export const downloadCanvas = ({ renderer, fileName = '3D' }) => {
   link.click(); //js代码触发超链接元素a的鼠标点击事件，开始下载文件到本地
 }
 
-export const setBox3 = ({ mesh}) => {
+export const getBox3 = ({ mesh}) => {
   const box3 = new THREE.Box3();
   box3.expandByObject(mesh); // 计算模型包围盒
   console.log('查看包围盒',box3);

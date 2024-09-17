@@ -36,24 +36,42 @@ export const initGUI = ({ mesh }) => {
   gui.domElement.style.top = '52px';
   gui.domElement.style.width = '200px';
 
-  const obj = {
-    color: mesh.material.color,
-  };
-
   const meshFolder = gui.addFolder('参数调试');
 
   // gui界面上增加交互界面，改变obj对应属性
   meshFolder.add(mesh.position, 'x', 0, 100).name('x坐标');
   meshFolder.add(mesh.position, 'y', 0, 50).name('y坐标');
   meshFolder.add(mesh.position, 'z', 0, 60).name('z坐标');
-  meshFolder.addColor(obj, 'color').name('材质颜色').onChange(function(value){
-    mesh.material.color.set(value);
-  });
+  // const obj = {
+  //   color: mesh.material.color,
+  // };
+  // meshFolder.addColor(obj, 'color').name('材质颜色').onChange(function(value){
+  //   mesh.material.color.set(value);
+  // });
 }
 
 export const setCameraHelper = ({ scene, camera, renderer }) => {
   // 设置相机控件轨道控制器OrbitControls
   const controls = new OrbitControls(camera, renderer.domElement);
+  console.log(controls)
+  // 设置透视相机的缩放范围
+  controls.minDistance = 2; // 最小距离
+  controls.maxDistance = 20; // 最大距离
+
+  // 设置正交相机的缩放范围
+  controls.minZoom = 0.5; // 最小缩放级别
+  controls.maxZoom = 4;   // 最大缩放级别
+
+  // 上下旋转范围
+  controls.minPolarAngle = 0;//默认值0
+  controls.maxPolarAngle = Math.PI / 2;//默认值Math.PI
+
+  // 左右旋转范围
+  controls.minAzimuthAngle = -Math.PI / 2;
+  controls.maxAzimuthAngle = Math.PI / 4;
+
+  // 更新控制器
+  controls.update();
   // 如果OrbitControls改变了相机参数，重新调用渲染器渲染三维场景
   controls.addEventListener('change', () => {
     // 浏览器控制台查看相机位置变化

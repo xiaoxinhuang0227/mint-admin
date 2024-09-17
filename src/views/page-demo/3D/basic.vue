@@ -119,7 +119,7 @@ const initWebgl = async ({
     targetPosition: mesh.position
   });
   
-  const renderer = initRender({ scene, camera, canvas: { width, height } });
+  const renderer = initRenderer({ scene, camera, canvas: { width, height } });
   
   needHelper && initHelper({ scene, camera, mesh, light, lightType: lightConf.lightType, renderer });
 
@@ -127,7 +127,8 @@ const initWebgl = async ({
   return { meshRes, renderer };
 }
 
-const initRender = ({ scene, camera, canvas: { width, height }, bgColor = 0x000000 }) => {
+
+const initRenderer = ({ scene, camera, canvas: { width, height }, bgColor = 0x000000 }) => {
   // 创建渲染器对象
   const renderer = new THREE.WebGLRenderer({
     //想把canvas画布上内容下载到本地，需要设置为true
@@ -139,6 +140,7 @@ const initRender = ({ scene, camera, canvas: { width, height }, bgColor = 0x0000
   renderer.setClearColor(bgColor, 1); //设置背景颜色
 
   renderer.setSize(width, height); //设置three.js渲染区域的尺寸(像素px)
+  
   function animate() {
     requestAnimationFrame(animate);
     renderer.render(scene, camera); //执行渲染操作，可理解为相机按下快门的操作

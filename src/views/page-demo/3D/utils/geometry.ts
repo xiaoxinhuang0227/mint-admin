@@ -1,7 +1,33 @@
 
 import * as THREE from 'three';
+// 引入扩展库GLTFLoader.js
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
 const textureLoader = new THREE.TextureLoader();
+export const initModel = ({ scene, modelUrl, position, scale }) => {
+  return new Promise((resolve, reject) => {
+    // 创建GLTF加载器对象
+    const loader = new GLTFLoader();
+    loader.load(
+      modelUrl,
+      function (gltf) {
+        gltf.scene.position.set(position.x, position.y, position.z);
+        // 返回的场景对象gltf.scene插入到threejs场景中
+        const object = gltf.scene;
+        object.scale.set(scale, scale, scale)
+        scene.add(object);
+        resolve(object);
+      },
+      function ( xhr ) {
+        console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
+      },
+      function ( error ) {
+        console.log( error );
+        reject(error);
+      }
+    )
+  })
+}
 export const initMesh = ({ geometryType, materialType, scene, materialParams, size, position }) => {
   return new Promise((async (resolve) => {
     //创建一个长方体几何对象Geometry
