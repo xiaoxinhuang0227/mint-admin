@@ -84,7 +84,10 @@ onMounted(async () => {
     canvas: { width: canvasWidth, height: canvasHeight },
     meshConf: MESH_CONF,
     lightConf: { lightType: 'AmbientLight', position: { x: 0, y: 200, z: 200 } },
-    cameraPosition: { x: 0, y: 100, z: 500 },
+    cameraConf: {
+      position: { x: 0, y: 100, z: 500 },
+      limit: { minDistance: 100, maxDistance: 800 }
+    }
   });
   meshArr = renderRes.meshRes;
   canvasRender = renderRes.renderer;
@@ -95,7 +98,7 @@ const initWebgl = async ({
   canvas: { width, height },
   meshConf,
   lightConf,
-  cameraPosition,
+  cameraConf,
   needHelper = true
 }) => {
   loading.value = true;
@@ -115,13 +118,13 @@ const initWebgl = async ({
   const camera = initCamera({
     width,
     height,
-    position: cameraPosition,
+    position: cameraConf.position,
     targetPosition: mesh.position
   });
   
   const renderer = initRenderer({ scene, camera, canvas: { width, height } });
   
-  needHelper && initHelper({ scene, camera, mesh, light, lightType: lightConf.lightType, renderer });
+  needHelper && initHelper({ scene, camera, mesh, light, lightType: lightConf.lightType, renderer, limit: cameraConf.limit });
 
   loading.value = false;
   return { meshRes, renderer };

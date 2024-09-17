@@ -6,7 +6,7 @@ import { initCamera, initLight } from './utils/tool';
 import { initModel } from './utils/geometry';
 
 const MESH_CONF = [
-  { position: { x: 0, y: -1.6, z: 0}, scale: 2, modelUrl: '/mint-admin/model/cat/scene.gltf' },
+  { position: { x: 0, y: -1.6, z: -1}, scale: 2, modelUrl: '/mint-admin/model/cat/scene.gltf' },
   { position: { x: 0, y: -2, z: 0}, scale: 8, modelUrl: '/mint-admin/model/room/scene.gltf' },
 ]
 
@@ -28,7 +28,10 @@ onMounted(async () => {
     canvas: { width: canvasWidth, height: canvasHeight },
     meshConf: MESH_CONF,
     lightConf: { lightType: 'PointLight', position: { x: 0, y: 200, z: 200 } },
-    cameraPosition: { x: 0, y: 1, z: 5 },
+    cameraConf: {
+      position: { x: 0, y: 1, z: 5 },
+      limit: { maxPolarAngle: Math.PI / 2, minAzimuthAngle: -Math.PI / 2, maxAzimuthAngle: Math.PI / 4 }
+    },
     needHelper: true
   });
   loading.value = false;
@@ -38,7 +41,7 @@ const initWebgl = async ({
   canvas: { width, height },
   meshConf,
   lightConf,
-  cameraPosition,
+  cameraConf,
   needHelper = true
 }) => {
   // 创建3D场景对象Scene
@@ -57,13 +60,13 @@ const initWebgl = async ({
   const camera = initCamera({
     width,
     height,
-    position: cameraPosition,
+    position: cameraConf.position,
     targetPosition: new THREE.Vector3(0,0,0)
   });
   
   const renderer = initRender({ scene, camera, canvas: { width, height } });
   
-  needHelper && initHelper({ scene, camera, mesh, light, lightType: lightConf.lightType, renderer });
+  needHelper && initHelper({ scene, camera, mesh, light, lightType: lightConf.lightType, renderer, limit: cameraConf.limit });
 }
 const initRender = ({ scene, camera, canvas: { width, height }, bgColor = 0xffffff }) => {
   // 创建渲染器对象

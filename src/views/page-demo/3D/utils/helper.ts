@@ -3,10 +3,10 @@ import * as THREE from 'three';
 // 引入扩展库OrbitControls.js
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
-export const initHelper = ({ scene, camera, mesh, renderer, light, lightType}) => {
+export const initHelper = ({ scene, camera, mesh, renderer, light, lightType, limit }) => {
   initGUI({ mesh });
   setAxesHelper({ scene });
-  setCameraHelper({ scene, camera, renderer });
+  setCameraHelper({ scene, camera, renderer, limit });
   setLightHelper({ scene, light, lightType });
 }
 
@@ -50,25 +50,46 @@ export const initGUI = ({ mesh }) => {
   // });
 }
 
-export const setCameraHelper = ({ scene, camera, renderer }) => {
+interface ICameraLimit {
+  minDistance?: number;
+  maxDistance?: number;
+  minZoom?: number;
+  maxZoom?: number;
+  minPolarAngle?: number;
+  maxPolarAngle?: number;
+  minAzimuthAngle?: number;
+  maxAzimuthAngle?: number;
+}
+
+export const setCameraHelper = ({ scene, camera, renderer, limit }) => {
+  const {
+    minDistance = 2,
+    maxDistance = 20,
+    minZoom = 0.5,
+    maxZoom = 4,
+    minPolarAngle = 0,
+    maxPolarAngle =  Math.PI,
+    minAzimuthAngle = -Math.PI,
+    maxAzimuthAngle = Math.PI
+  } = <ICameraLimit>limit;
   // 设置相机控件轨道控制器OrbitControls
   const controls = new OrbitControls(camera, renderer.domElement);
   console.log(controls)
   // 设置透视相机的缩放范围
-  controls.minDistance = 2; // 最小距离
-  controls.maxDistance = 20; // 最大距离
+  controls.minDistance = minDistance; // 最小距离
+  controls.maxDistance = maxDistance; // 最大距离
 
   // 设置正交相机的缩放范围
-  controls.minZoom = 0.5; // 最小缩放级别
-  controls.maxZoom = 4;   // 最大缩放级别
+  controls.minZoom = minZoom; // 最小缩放级别
+  controls.maxZoom = maxZoom;   // 最大缩放级别
 
   // 上下旋转范围
-  controls.minPolarAngle = 0;//默认值0
-  controls.maxPolarAngle = Math.PI / 2;//默认值Math.PI
+  controls.minPolarAngle = minPolarAngle;//默认值0
+  controls.maxPolarAngle = maxPolarAngle;
 
   // 左右旋转范围
-  controls.minAzimuthAngle = -Math.PI / 2;
-  controls.maxAzimuthAngle = Math.PI / 4;
+  controls.minAzimuthAngle = minAzimuthAngle;
+  controls.maxAzimuthAngle =maxAzimuthAngle;
 
   // 更新控制器
   controls.update();
