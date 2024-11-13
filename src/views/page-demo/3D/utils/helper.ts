@@ -1,13 +1,35 @@
-
 import * as THREE from 'three';
 // 引入扩展库OrbitControls.js
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
-export const initHelper = ({ scene, camera, mesh, renderer, light, lightType, limit }) => {
-  initGUI({ mesh });
-  setAxesHelper({ scene });
-  setCameraHelper({ scene, camera, renderer, limit });
-  setLightHelper({ scene, light, lightType });
+export const initHelper = ({ 
+  scene, 
+  camera, 
+  mesh, 
+  renderer, 
+  light, 
+  lightType, 
+  limit,
+  config = {
+    enableGUI: true,
+    enableAxesHelper: true,
+    enableCameraHelper: true,
+    enableLightHelper: true
+  }
+}) => {
+  // 根据配置决定是否启用各个 helper
+  if (config.enableGUI && mesh) {
+    initGUI({ mesh });
+  }
+  if (config.enableAxesHelper) {
+    setAxesHelper({ scene });
+  }
+  if (config.enableCameraHelper) {
+    setCameraHelper({ scene, camera, renderer, limit });
+  }
+  if (config.enableLightHelper && light) {
+    setLightHelper({ scene, light, lightType });
+  }
 }
 
 export const setLightHelper = ({ scene, light, lightType }) => {
