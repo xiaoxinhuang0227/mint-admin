@@ -104,25 +104,22 @@ onMounted(async () => {
 
 <template>
   <div v-loading="loading" class="page-3D">
-    <div id="webgl"></div>
-    <div class="tool">
-      <Icon 
-        @click="() => downloadCanvas({ renderer: canvasRender })" 
-        icon="mingcute:download-fill" 
-        color="#fff" 
-        :size="20"
-      />
-    </div>
-    <div class="texture">
-      地板材质选择：
-      <div
-        v-for="(item, idx) in TEXTURE_CONF"
-        :key="item.url"
-        class="toggle-item"
-        :class="{ active: activeFloorIdx === idx }"
-        @click="changeFloorTexture(item, idx)"
-      >
-        <img :src="item.url" />
+    <div class="canvas-wrapper">
+      <div id="webgl"></div>
+      <div class="texture-selector">
+        <h3 class="title">地板材质选择</h3>
+        <div class="texture-grid">
+          <div
+            v-for="(item, idx) in TEXTURE_CONF"
+            :key="item.url"
+            class="texture-item"
+            :class="{ active: activeFloorIdx === idx }"
+            @click="changeFloorTexture(item, idx)"
+          >
+            <img :src="item.url" :alt="`材质 ${idx + 1}`" />
+            <div class="hover-effect"></div>
+          </div>
+        </div>
       </div>
     </div>
     <threeGuide />
@@ -139,22 +136,73 @@ onMounted(async () => {
   }
 }
 
-.texture {
-  display: flex;
+.canvas-wrapper {
+  position: relative;
+}
+
+.texture-selector {
+  position: absolute;
+  left: 20px;
+  bottom: 20px;
+  background: rgba(57, 57, 57, 0.6); // 深色背景更适合3D场景
+  padding: 12px;
+  border-radius: 8px;
+  backdrop-filter: blur(8px); // 磨砂玻璃效果
+  z-index: 100;
   
-  .toggle-item {
-    margin-right: 10px;
-    width: 50px;
-    height: 50px;
-    box-sizing: border-box;
+  .title {
+    font-size: 14px;
+    color: #fff;
+    margin-bottom: 10px;
+    font-weight: normal;
+  }
+
+  .texture-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
     
-    &.active {
-      border: 4px solid #000;
-    }
-    
-    img {
-      width: 100%;
-      height: 100%;
+    .texture-item {
+      position: relative;
+      cursor: pointer;
+      border-radius: 4px;
+      overflow: hidden;
+      transition: all 0.2s ease;
+      border: 2px solid transparent;
+
+      img {
+        width: 50px;
+        height: 50px;
+        object-fit: cover;
+        display: block;
+      }
+
+      .hover-effect {
+        position: absolute;
+        inset: 0;
+        background: rgba(255, 255, 255, 0.1);
+        opacity: 0;
+        transition: opacity 0.2s;
+      }
+
+      &:hover {
+        transform: translateY(-2px);
+        
+        .hover-effect {
+          opacity: 1;
+        }
+      }
+
+      &.active {
+        border-color: #1890ff;
+        
+        &::after {
+          content: "";
+          position: absolute;
+          inset: 0;
+          background: rgba(24, 144, 255, 0.2);
+        }
+      }
     }
   }
 }
