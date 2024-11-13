@@ -1,4 +1,3 @@
-
 import * as THREE from 'three';
 export const initCamera = ({ width, height, position: { x = 0, y = 0, z = 0 }, targetPosition }) => {
   // 30:视场角度, width / height:Canvas画布宽高比, 1:近裁截面, 3000：远裁截面
@@ -63,4 +62,11 @@ export const getBox3 = ({ mesh}) => {
   const box3 = new THREE.Box3();
   box3.expandByObject(mesh); // 计算模型包围盒
   console.log('查看包围盒',box3);
+}
+
+export const getCanvasSize = () => {
+  return {
+    width: window.innerWidth - 183,  // 减去侧边栏宽度
+    height: 500
+  }
 }

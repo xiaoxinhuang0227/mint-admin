@@ -3,9 +3,9 @@ import variables from '@/styles/variables.module.scss';
 import { propTypes } from '@/utils/propTypes';
 
 defineProps({
-  backgroundColor: propTypes.string.def(variables.primaryLighterColor),
+  backgroundColor: propTypes.string.def('#bfd3ff'),
   borderColor: propTypes.string.def(variables.primaryColor),
-  textColor: propTypes.string.def('#fff'),
+  textColor: propTypes.string.def('#4d4d4d'),
 })
 </script>
 
