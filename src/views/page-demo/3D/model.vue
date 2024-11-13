@@ -1,104 +1,163 @@
 <script setup>
-import { onMounted, ref } from 'vue';
-import * as THREE from 'three';
-import { initHelper } from './utils/helper';
-import { initCamera, initLight } from './utils/tool';
-import { initModel } from './utils/geometry';
+import { onMounted, ref, onUnmounted } from 'vue'
+import * as THREE from 'three'
+import { initHelper } from './utils/helper'
+import { initCamera, initLight } from './utils/tool'
+import { initModel } from './utils/geometry'
 
-const MESH_CONF = [
-  { position: { x: 0, y: -1.6, z: -1}, scale: 2, modelUrl: '/mint-admin/model/cat/scene.gltf' },
-  { position: { x: 0, y: -2, z: 0}, scale: 8, modelUrl: '/mint-admin/model/room/scene.gltf' },
+// 常量配置抽离
+const MODEL_CONFIG = [
+  { 
+    position: { x: 0, y: -1.6, z: -1 }, 
+    scale: 2, 
+    modelUrl: '/mint-admin/model/cat/scene.gltf' 
+  },
+  { 
+    position: { x: 0, y: -2, z: 0 }, 
+    scale: 8, 
+    modelUrl: '/mint-admin/model/room/scene.gltf' 
+  }
 ]
 
-const getCanvasSize = () => {
-  return {
-    width: window.innerWidth - 183,
-    height: window.innerHeight - 52
-  }
-}
+// 响应式状态
+const loading = ref(false)
+const webglContainer = ref(null)
 
-const loading = ref(false);
-
-const canvasWidth = getCanvasSize().width;
-const canvasHeight =  getCanvasSize().height;
-onMounted(async () => {
-  loading.value = true;
-  await initWebgl({
-    // 定义相机输出画布的尺寸(单位:像素px)
-    canvas: { width: canvasWidth, height: canvasHeight },
-    meshConf: MESH_CONF,
-    lightConf: { lightType: 'PointLight', position: { x: 0, y: 200, z: 200 } },
-    cameraConf: {
-      position: { x: 0, y: 1, z: 5 },
-      limit: { maxPolarAngle: Math.PI / 2, minAzimuthAngle: -Math.PI / 2, maxAzimuthAngle: Math.PI / 4 }
-    },
-    needHelper: true
-  });
-  loading.value = false;
+// 计算属性或方法
+const getCanvasSize = () => ({
+  width: window.innerWidth - 183,
+  height: window.innerHeight - 52
 })
 
-const initWebgl = async ({ 
-  canvas: { width, height },
-  meshConf,
-  lightConf,
-  cameraConf,
-  needHelper = true
-}) => {
-  // 创建3D场景对象Scene
-  const scene = new THREE.Scene();
+// 场景相关变量
+let scene, renderer, animationId
 
-  let meshPromiseRes = [];
-  meshConf.map((item) => {
-    const object = initModel({ scene, ...item });
-    meshPromiseRes.push(object);
-  })
-  const meshRes = await Promise.all(meshPromiseRes);
-  const mesh = meshRes[0];
-
-  const light = initLight({ scene, ...lightConf });
-
+// 初始化WebGL
+const initWebGL = async (config) => {
+  const { canvas, meshConf, lightConf, cameraConf, needHelper } = config
+  
+  // 创建场景
+  scene = new THREE.Scene()
+  
+  // 加载模型
+  const meshPromises = meshConf.map(item => initModel({ scene, ...item }))
+  const meshes = await Promise.all(meshPromises)
+  
+  // 初始化灯光和相机
+  const light = initLight({ scene, ...lightConf })
   const camera = initCamera({
-    width,
-    height,
+    ...canvas,
     position: cameraConf.position,
-    targetPosition: new THREE.Vector3(0,0,0)
-  });
+    targetPosition: new THREE.Vector3(0, 0, 0)
+  })
   
-  const renderer = initRender({ scene, camera, canvas: { width, height } });
+  // 初始化渲染器
+  renderer = initRenderer({ scene, camera, canvas })
   
-  needHelper && initHelper({ scene, camera, mesh, light, lightType: lightConf.lightType, renderer, limit: cameraConf.limit });
-}
-const initRender = ({ scene, camera, canvas: { width, height }, bgColor = 0xffffff }) => {
-  // 创建渲染器对象
-  const renderer = new THREE.WebGLRenderer();
-
-  // 获取你屏幕对应的设备像素比.devicePixelRatio告诉threejs,以免渲染模糊问题
-  renderer.setPixelRatio(window.devicePixelRatio);
-  renderer.setClearColor(bgColor, 1); //设置背景颜色
-
-  renderer.setSize(width, height); //设置three.js渲染区域的尺寸(像素px)
-  function animate() {
-    requestAnimationFrame(animate);
-    renderer.render(scene, camera); //执行渲染操作，可理解为相机按下快门的操作
+  // 添加辅助工具
+  if (needHelper) {
+    initHelper({ 
+      scene, 
+      camera, 
+      mesh: meshes[0], 
+      light,
+      lightType: lightConf.lightType,
+      renderer,
+      limit: cameraConf.limit 
+    })
   }
-  animate();
-
-  // renderer.domElement获得Canvas画布，添加到页面上
-  document.getElementById('webgl').appendChild(renderer.domElement);
-
-  return renderer;
 }
 
+// 渲染器初始化
+const initRenderer = ({ scene, camera, canvas }) => {
+  const renderer = new THREE.WebGLRenderer({ 
+    antialias: true // 抗锯齿
+  })
+  
+  renderer.setPixelRatio(window.devicePixelRatio)
+  renderer.setClearColor(0xffffff, 1)
+  renderer.setSize(canvas.width, canvas.height)
+  
+  // 动画循环
+  const animate = () => {
+    animationId = requestAnimationFrame(animate)
+    renderer.render(scene, camera)
+  }
+  animate()
+  
+  webglContainer.value.appendChild(renderer.domElement)
+  return renderer
+}
+
+// 窗口大小变化处理
+const handleResize = () => {
+  if (!renderer) return
+  const { width, height } = getCanvasSize()
+  renderer.setSize(width, height)
+}
+
+// 生命周期钩子
+onMounted(async () => {
+  loading.value = true
+  try {
+    const { width, height } = getCanvasSize()
+    await initWebGL({
+      canvas: { width, height },
+      meshConf: MODEL_CONFIG,
+      lightConf: { 
+        lightType: 'PointLight', 
+        position: { x: 0, y: 200, z: 200 } 
+      },
+      cameraConf: {
+        position: { x: 0, y: 1, z: 5 },
+        limit: { 
+          maxPolarAngle: Math.PI / 2, 
+          minAzimuthAngle: -Math.PI / 2, 
+          maxAzimuthAngle: Math.PI / 4 
+        }
+      },
+      needHelper: true
+    })
+    
+    // 添加窗口resize监听
+    window.addEventListener('resize', handleResize)
+  } catch (error) {
+    console.error('3D场景初始化失败:', error)
+  } finally {
+    loading.value = false
+  }
+})
+
+onUnmounted(() => {
+  // 清理资源
+  window.removeEventListener('resize', handleResize)
+  if (animationId) {
+    cancelAnimationFrame(animationId)
+  }
+  if (renderer) {
+    renderer.dispose()
+  }
+  if (scene) {
+    scene.clear()
+  }
+})
 </script>
 
 <template>
-  <div class="page-3D" v-loading="loading">
-    <div id="webgl"></div>
+  <div class="page-3d" v-loading="loading">
+    <div ref="webglContainer" class="webgl-container" />
   </div>
 </template>
 
 <style lang="scss" scoped>
-#webgl {
-  border: 1px solid #eee;
+.page-3d {
+  width: 100%;
+  height: 100%;
+  
+  .webgl-container {
+    width: 100%;
+    height: 100%;
+    border: 1px solid #eee;
+  }
 }
 </style>
