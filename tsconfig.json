@@ -24,7 +24,7 @@
     "paths": {
       "@/*": ["src/*"]
     },
-    "types": []
+    "types": ["vue"]
   },
   "include": ["src", "types/**/*.d.ts", "mock/**/*.ts"]
   // "exclude": ["dist", "node_modules"]

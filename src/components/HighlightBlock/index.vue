@@ -20,8 +20,9 @@ defineProps({
 
 <style scoped lang="scss">
 .component-highlight-block {
-  padding: 20px;
+  padding: 10px;
   margin: 20px $page-padding;
   border-radius: 5px;
+  font-size: 14px;
 }
 </style>
