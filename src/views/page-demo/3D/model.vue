@@ -85,18 +85,22 @@ const initWebGL = async (config) => {
   const meshes = await Promise.all(meshPromises)
   catModel.value = meshes[0]
   
-  // 初始化灯光和相机
+  // 使用猫咪模型的位置作为相机目标点
+  const targetPosition = new THREE.Vector3(
+    catModel.value.position.x,
+    catModel.value.position.y,
+    catModel.value.position.z
+  )
+  
   const light = initLight({ scene, ...lightConf })
   const camera = initCamera({
     ...canvas,
     position: cameraConf.position,
-    targetPosition: new THREE.Vector3(0, 0, 0)
+    targetPosition // 传入猫咪位置作为目标点
   })
-  
-  // 初始化渲染器
+
   renderer = initRenderer({ scene, camera, canvas })
   
-  // 添加辅助工具
   if (needHelper) {
     initHelper({ 
       scene, 
@@ -105,7 +109,13 @@ const initWebGL = async (config) => {
       light,
       lightType: lightConf.lightType,
       renderer,
-      limit: cameraConf.limit 
+      limit: cameraConf.limit,
+      config: {
+        enableGUI: true,
+        enableAxesHelper: true,
+        enableCameraHelper: true,
+        enableLightHelper: true
+      }
     })
   }
 }
@@ -150,7 +160,8 @@ onMounted(async () => {
         position: { x: 0, y: 200, z: 200 } 
       },
       cameraConf: {
-        position: { x: 0, y: 1, z: 5 },
+        // 调整相机位置，使其相对于猫咪模型的位置
+        position: { x: 0, y: 2, z: 4 },
         limit: { 
           maxPolarAngle: Math.PI / 2, 
           minAzimuthAngle: -Math.PI / 2, 
