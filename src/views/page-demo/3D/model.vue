@@ -4,6 +4,7 @@ import * as THREE from 'three'
 import { initHelper } from './utils/helper'
 import { initCamera, initLight } from './utils/tool'
 import { initModel } from './utils/geometry'
+import LoadingProgress from '@/components/LoadingProgress/index.vue'
 
 // 常量配置抽离
 const MODEL_CONFIG = [
@@ -22,6 +23,8 @@ const MODEL_CONFIG = [
 // 响应式状态
 const loading = ref(false)
 const webglContainer = ref(null)
+const loadingProgress = ref(0)
+const loadingText = ref('')
 
 // 计算属性或方法
 const getCanvasSize = () => ({
@@ -63,11 +66,23 @@ const initWebGL = async (config) => {
   // 创建场景
   scene = new THREE.Scene()
   
-  // 加载模型
-  const meshPromises = meshConf.map(item => initModel({ scene, ...item }))
-  const meshes = await Promise.all(meshPromises)
+  // 添加加载管理器
+  const loadingManager = new THREE.LoadingManager()
+  loadingManager.onProgress = (url, loaded, total) => {
+    loadingProgress.value = Math.floor((loaded / total) * 100)
+    loadingText.value = `加载中...${loadingProgress.value}%`
+  }
   
-  // 保存猫咪模型引用（第一个模型）
+  // 加载模型时传入加载管理器
+  const meshPromises = meshConf.map(item => 
+    initModel({ 
+      scene, 
+      ...item, 
+      loadingManager 
+    })
+  )
+  
+  const meshes = await Promise.all(meshPromises)
   catModel.value = meshes[0]
   
   // 初始化灯光和相机
@@ -115,7 +130,6 @@ const initRenderer = ({ scene, camera, canvas }) => {
   webglContainer.value.appendChild(renderer.domElement)
   return renderer
 }
-
 // 窗口大小变化处理
 const handleResize = () => {
   if (!renderer) return
@@ -174,11 +188,17 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="page-3d" v-loading="loading">
+  <div class="page-3d">
     <div ref="webglContainer" class="webgl-container" />
     
-    <!-- 添加操作提示 -->
-    <div class="keyboard-tips">
+    <LoadingProgress 
+      :loading="loading"
+      :progress="loadingProgress"
+      :text="loadingText"
+    />
+    
+    <!-- 键盘操作提示保持不变 -->
+    <div v-show="!loading" class="keyboard-tips">
       <div class="tips-title">键盘操作说明</div>
       <div class="keys-container">
         <div class="key-row">

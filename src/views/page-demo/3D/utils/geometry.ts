@@ -1,30 +1,24 @@
-
 import * as THREE from 'three';
 // 引入扩展库GLTFLoader.js
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
 const textureLoader = new THREE.TextureLoader();
-export const initModel = ({ scene, modelUrl, position, scale }) => {
+export const initModel = ({ scene, modelUrl, position, scale, loadingManager }) => {
   return new Promise((resolve, reject) => {
-    // 创建GLTF加载器对象
-    const loader = new GLTFLoader();
+    const loader = new GLTFLoader(loadingManager)
     loader.load(
       modelUrl,
       function (gltf) {
-        gltf.scene.position.set(position.x, position.y, position.z);
-        // 返回的场景对象gltf.scene插入到threejs场景中
-        const object = gltf.scene;
-        object.scale.set(scale, scale, scale);
-        console.log(object)
-        scene.add(object);
-        resolve(object);
+        gltf.scene.position.set(position.x, position.y, position.z)
+        const object = gltf.scene
+        object.scale.set(scale, scale, scale)
+        scene.add(object)
+        resolve(object)
       },
-      function ( xhr ) {
-        console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
-      },
-      function ( error ) {
-        console.log( error );
-        reject(error);
+      undefined,
+      function (error) {
+        console.error('模型加载失败:', error)
+        reject(error)
       }
     )
   })

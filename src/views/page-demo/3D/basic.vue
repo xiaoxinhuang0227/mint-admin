@@ -3,6 +3,7 @@ import { onMounted, ref, computed } from 'vue';
 import * as THREE from 'three';
 import threeGuide from './components/threeGuide.vue';
 import { Icon } from '@/components/Icon';
+import LoadingProgress from '@/components/LoadingProgress/index.vue';
 import { initHelper } from './utils/helper';
 import { initCamera, initLight, downloadCanvas, getCanvasSize } from './utils/tool';
 import { initMesh, changeTexture } from './utils/geometry';
@@ -11,6 +12,8 @@ import { MESH_CONF, TEXTURE_CONF } from './config';
 
 // 响应式状态
 const loading = ref(false);
+const loadingProgress = ref(0);
+const loadingText = ref('');
 const activeFloorIdx = ref(0);
 const meshArr = ref([]);
 const canvasRender = ref(null);
@@ -21,9 +24,18 @@ const canvasSize = computed(() => getCanvasSize());
 // 方法
 const initWebgl = async (config) => {
   loading.value = true;
+  loadingText.value = '场景初始化中...'
   try {
     const scene = new THREE.Scene();
-    const meshRes = await initMeshes(scene, config.meshConf);
+    
+    // 创建加载管理器
+    const loadingManager = new THREE.LoadingManager();
+    loadingManager.onProgress = (url, loaded, total) => {
+      loadingProgress.value = Math.floor((loaded / total) * 100);
+      loadingText.value = `加载中...${loadingProgress.value}%`;
+    };
+    
+    const meshRes = await initMeshes(scene, config.meshConf, loadingManager);
     
     // 添加默认目标位置
     const targetPosition = meshRes[2]?.position || new THREE.Vector3(0, 0, 0);
@@ -63,8 +75,10 @@ const initWebgl = async (config) => {
   }
 }
 
-const initMeshes = async (scene, meshConf) => {
-  const meshPromises = meshConf.map(item => initMesh({ scene, ...item }));
+const initMeshes = async (scene, meshConf, loadingManager) => {
+  const meshPromises = meshConf.map(item => 
+    initMesh({ scene, ...item, loadingManager })
+  );
   return Promise.all(meshPromises);
 }
 
@@ -103,9 +117,14 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div v-loading="loading" class="page-3D">
+  <div class="page-3D">
     <div class="canvas-wrapper">
       <div id="webgl"></div>
+      <LoadingProgress 
+        :loading="loading"
+        :progress="loadingProgress"
+        :text="loadingText"
+      />
       <div class="texture-selector">
         <h3 class="title">地板材质选择</h3>
         <div class="texture-grid">
