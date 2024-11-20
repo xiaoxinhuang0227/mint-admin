@@ -10,12 +10,12 @@ import LoadingProgress from '@/components/LoadingProgress/index.vue'
 // 常量配置抽离
 const MODEL_CONFIG = [
   { 
-    position: { x: 0, y: -1.6, z: -1 }, 
+    position: { x: 0, y: 0, z: -1 }, 
     scale: 0.5, 
     modelUrl: '/mint-admin/model/cat/scene.gltf' 
   },
   { 
-    position: { x: 0, y: -2, z: 0 }, 
+    position: { x: 0, y: -0.1, z: 0 }, 
     scale: 2, 
     modelUrl: '/mint-admin/model/room/scene.gltf' 
   }
@@ -180,9 +180,9 @@ const initRenderer = ({ scene, camera, canvas }) => {
     if (cameraControls && catModel.value) {
       // 计算相机偏移,使其跟随猫咪朝向
       const offset = new THREE.Vector3(
-        -Math.sin(catModel.value.rotation.y) * 4,
-        2,
-        -Math.cos(catModel.value.rotation.y) * 4
+        -Math.sin(catModel.value.rotation.y) * 10,
+        20,
+        -Math.cos(catModel.value.rotation.y) * -10
       )
       updateCameraFollow(cameraControls, catModel.value, offset)
     }
@@ -211,16 +211,19 @@ onMounted(async () => {
       meshConf: MODEL_CONFIG,
       lightConf: { 
         lightType: 'PointLight', 
-        position: { x: 0, y: 200, z: 200 } 
+        position: { x: 0, y: 10, z: 10 } 
       },
       cameraConf: {
-        position: { x: 0, y: 2, z: 4 },
+        position: { x: 0, y: 100, z: 0},
         limit: { 
-          maxPolarAngle: Math.PI / 2,    // 垂直旋转限制
-          minAzimuthAngle: -Math.PI / 2, // 水平旋转限制
-          maxAzimuthAngle: Math.PI / 4,
-          minDistance: 2,                // 最小缩放距离
-          maxDistance: 10                // 最大缩放距离
+          minPolarAngle: Math.PI / 2.5,  // 最小仰角（0表示正上方）
+          maxPolarAngle: Math.PI,  // 最大俯角（约126度）
+          
+          minAzimuthAngle: -Infinity,  // 移除水平旋转的限制
+          maxAzimuthAngle: Infinity,   // 移除水平旋转的限制
+          
+          minDistance: 0.5,
+          maxDistance: 2
         }
       },
       needHelper: true
