@@ -99,6 +99,14 @@ export const wholeMenuRouterMap: RouteRecordRaw[] = [
             meta: {
               title: '原生合并表格'
             }
+          },
+          {
+            path: 'long-list',
+            component: () => import('@/views/example/table/longList/index.vue'),
+            name: 'longListExample',
+            meta: {
+              title: '长列表优化'
+            }
           }
         ]
       },
