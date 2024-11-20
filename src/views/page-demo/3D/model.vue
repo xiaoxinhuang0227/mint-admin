@@ -4,6 +4,7 @@ import * as THREE from 'three'
 import { initHelper } from './utils/helper'
 import { initCamera, initLight } from './utils/tool'
 import { initModel } from './utils/geometry'
+import { initControls } from './utils/controls'
 import LoadingProgress from '@/components/LoadingProgress/index.vue'
 
 // 常量配置抽离
@@ -39,22 +40,45 @@ let scene, renderer, animationId
 const catModel = ref(null)
 const moveSpeed = 0.1
 
+// 添加方向控制变量
+let cameraControls
+const rotateSpeed = 0.1 // 旋转速度
+const direction = new THREE.Vector3() // 移动方向向量
+
 // 键盘控制处理
 const handleKeydown = (event) => {
   if (!catModel.value) return
   
+  // 获取当前模型的朝向
+  const modelRotation = catModel.value.rotation.y
+  
+  // 根据当前朝向计算移动方向
   switch(event.key) {
     case 'ArrowUp':
-      catModel.value.position.z -= moveSpeed
+      // 向前移动
+      direction.set(
+        Math.sin(modelRotation) * moveSpeed,
+        0,
+        -Math.cos(modelRotation) * moveSpeed
+      )
+      catModel.value.position.add(direction)
       break
     case 'ArrowDown':
-      catModel.value.position.z += moveSpeed
+      // 向后移动
+      direction.set(
+        -Math.sin(modelRotation) * moveSpeed,
+        0,
+        Math.cos(modelRotation) * moveSpeed
+      )
+      catModel.value.position.add(direction)
       break
     case 'ArrowLeft':
-      catModel.value.position.x -= moveSpeed
+      // 向左转向
+      catModel.value.rotation.y += rotateSpeed
       break
     case 'ArrowRight':
-      catModel.value.position.x += moveSpeed
+      // 向右转向
+      catModel.value.rotation.y -= rotateSpeed
       break
   }
 }
@@ -99,6 +123,14 @@ const initWebGL = async (config) => {
     targetPosition // 传入猫咪位置作为目标点
   })
 
+  cameraControls = initControls({
+    camera,
+    renderer,
+    target: catModel.value.position,
+    limit: cameraConf.limit,
+    enableDamping: true
+  })
+
   renderer = initRenderer({ scene, camera, canvas })
   
   if (needHelper) {
@@ -133,6 +165,17 @@ const initRenderer = ({ scene, camera, canvas }) => {
   // 动画循环
   const animate = () => {
     animationId = requestAnimationFrame(animate)
+    
+    if (cameraControls && catModel.value) {
+      // 计算相机偏移,使其跟随猫咪朝向
+      const offset = new THREE.Vector3(
+        -Math.sin(catModel.value.rotation.y) * 4,
+        2,
+        -Math.cos(catModel.value.rotation.y) * 4
+      )
+      updateCameraFollow(cameraControls, catModel.value, offset)
+    }
+    
     renderer.render(scene, camera)
   }
   animate()

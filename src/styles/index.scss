@@ -1,46 +1,8 @@
-@import './reset.css';
+
+@import './variables.scss';
+@import './reset.scss';
 @import './element-reset.scss';
 @import './page-ui.scss';
-
-.cursor-pointer {
-  cursor: pointer;
-}
-
-.flex {
-  display: flex;
-}
-
-.flex-shrink-0 {
-  flex-shrink: 0;
-}
-
-.flex-between {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.flex-center {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.flex-align-center {
-  display: flex;
-  align-items: center;
-}
-
-.clickable {
-  cursor: pointer;
-  &:hover {
-    color: $primary-color;
-  }
-}
-
-.w100 {
-  width: 100%;
-}
 
 @for $i from 1 through 30 {
   .p-#{$i} {
@@ -76,4 +38,13 @@
   .fs-#{$i} {
     font-size: #{$i}px;
   }
+}
+
+
+#nprogress .bar {
+  background: $primary-color !important;
+}
+
+#nprogress .peg {
+  box-shadow: 0 0 10px $primary-color, 0 0 5px $primary-color !important;
 }
