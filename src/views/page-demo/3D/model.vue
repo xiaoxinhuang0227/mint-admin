@@ -11,12 +11,12 @@ import LoadingProgress from '@/components/LoadingProgress/index.vue'
 const MODEL_CONFIG = [
   { 
     position: { x: 0, y: -1.6, z: -1 }, 
-    scale: 2, 
+    scale: 0.5, 
     modelUrl: '/mint-admin/model/cat/scene.gltf' 
   },
   { 
     position: { x: 0, y: -2, z: 0 }, 
-    scale: 8, 
+    scale: 2, 
     modelUrl: '/mint-admin/model/room/scene.gltf' 
   }
 ]
@@ -44,6 +44,18 @@ const moveSpeed = 0.1
 let cameraControls
 const rotateSpeed = 0.1 // 旋转速度
 const direction = new THREE.Vector3() // 移动方向向量
+
+// 添加相机跟随更新函数
+const updateCameraFollow = (controls, target, offset) => {
+  // 计算目标位置
+  const targetPosition = new THREE.Vector3()
+  targetPosition.copy(target.position).add(offset)
+  
+  // 更新相机位置
+  controls.target.copy(target.position)
+  controls.object.position.copy(targetPosition)
+  controls.update()
+}
 
 // 键盘控制处理
 const handleKeydown = (event) => {
@@ -87,17 +99,14 @@ const handleKeydown = (event) => {
 const initWebGL = async (config) => {
   const { canvas, meshConf, lightConf, cameraConf, needHelper } = config
   
-  // 创建场景
   scene = new THREE.Scene()
   
-  // 添加加载管理器
   const loadingManager = new THREE.LoadingManager()
   loadingManager.onProgress = (url, loaded, total) => {
     loadingProgress.value = Math.floor((loaded / total) * 100)
     loadingText.value = `加载中...${loadingProgress.value}%`
   }
   
-  // 加载模型时传入加载管理器
   const meshPromises = meshConf.map(item => 
     initModel({ 
       scene, 
@@ -120,9 +129,13 @@ const initWebGL = async (config) => {
   const camera = initCamera({
     ...canvas,
     position: cameraConf.position,
-    targetPosition // 传入猫咪位置作为目标点
+    targetPosition
   })
 
+  // 先初始化渲染器
+  renderer = initRenderer({ scene, camera, canvas })
+  
+  // 再初始化控制器
   cameraControls = initControls({
     camera,
     renderer,
@@ -131,8 +144,6 @@ const initWebGL = async (config) => {
     enableDamping: true
   })
 
-  renderer = initRenderer({ scene, camera, canvas })
-  
   if (needHelper) {
     initHelper({ 
       scene, 
@@ -203,12 +214,13 @@ onMounted(async () => {
         position: { x: 0, y: 200, z: 200 } 
       },
       cameraConf: {
-        // 调整相机位置，使其相对于猫咪模型的位置
         position: { x: 0, y: 2, z: 4 },
         limit: { 
-          maxPolarAngle: Math.PI / 2, 
-          minAzimuthAngle: -Math.PI / 2, 
-          maxAzimuthAngle: Math.PI / 4 
+          maxPolarAngle: Math.PI / 2,    // 垂直旋转限制
+          minAzimuthAngle: -Math.PI / 2, // 水平旋转限制
+          maxAzimuthAngle: Math.PI / 4,
+          minDistance: 2,                // 最小缩放距离
+          maxDistance: 10                // 最大缩放距离
         }
       },
       needHelper: true

@@ -1,4 +1,7 @@
 import * as THREE from 'three';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+
 export const initCamera = ({ width, height, position: { x = 0, y = 0, z = 0 }, targetPosition }) => {
   // 30:视场角度, width / height:Canvas画布宽高比, 1:近裁截面, 3000：远裁截面
   const camera = new THREE.PerspectiveCamera(30, width / height, 1, 3000);
@@ -69,4 +72,38 @@ export const getCanvasSize = () => {
     width: window.innerWidth - 183,  // 减去侧边栏宽度
     height: 500
   }
+}
+
+export const initControls = ({ 
+  camera, 
+  renderer, 
+  target,
+  limit = {}, 
+  enableDamping = true 
+}) => {
+  const controls = new OrbitControls(camera, renderer.domElement)
+  
+  // 设置控制器的目标点
+  controls.target.copy(target)
+  
+  // 启用阻尼效果
+  controls.enableDamping = enableDamping
+  controls.dampingFactor = 0.05
+  
+  // 设置旋转限制
+  if (limit.minPolarAngle !== undefined) controls.minPolarAngle = limit.minPolarAngle
+  if (limit.maxPolarAngle !== undefined) controls.maxPolarAngle = limit.maxPolarAngle
+  if (limit.minAzimuthAngle !== undefined) controls.minAzimuthAngle = limit.minAzimuthAngle
+  if (limit.maxAzimuthAngle !== undefined) controls.maxAzimuthAngle = limit.maxAzimuthAngle
+  
+  // 设置缩放限制
+  controls.enableZoom = true  // 启用缩放
+  controls.minDistance = 2    // 最小缩放距离
+  controls.maxDistance = 10   // 最大缩放距离
+  
+  // 禁用平移
+  controls.enablePan = false
+  
+  controls.update()
+  return controls
 }
