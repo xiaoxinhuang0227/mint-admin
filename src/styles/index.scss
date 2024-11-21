@@ -1,8 +1,8 @@
-
-@import './variables.scss';
-@import './reset.scss';
-@import './element-reset.scss';
-@import './page-ui.scss';
+@use 'sass:math';
+@use './variables' as *;
+@use './reset' as *;
+@use './element-reset' as *;
+@use './page-ui' as *;
 
 @for $i from 1 through 30 {
   .p-#{$i} {
@@ -39,7 +39,6 @@
     font-size: #{$i}px;
   }
 }
-
 
 #nprogress .bar {
   background: $primary-color !important;

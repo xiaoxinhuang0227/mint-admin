@@ -1,3 +1,4 @@
+@use 'variables' as *;
 
 .table-header-section {
   font-size: 20px;
@@ -6,7 +7,6 @@
   padding-bottom: 20px;
   border-bottom: 2px solid $border-color;
 }
-
 
 .cursor-pointer {
   cursor: pointer;
