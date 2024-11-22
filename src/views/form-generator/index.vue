@@ -3,6 +3,7 @@ import { ref, reactive, nextTick, computed } from 'vue'
 import { FormSchema } from '@/components/Form'
 import { ElMessage } from 'element-plus'
 import { useDraggable } from '@vueuse/core'
+import { componentMap } from '@/components/Form/src/helper/componentMap'
 
 // 支持的表单控件列表
 const componentList = [
@@ -273,7 +274,7 @@ const renderOptionsConfig = (field: FormSchema) => {
               })
             }}
           >
-            删除
+            除
           </el-button>
         </div>
       ))}
@@ -292,6 +293,27 @@ const renderOptionsConfig = (field: FormSchema) => {
       </el-button>
     </>
   )
+}
+
+// 处理表单项点击
+const handleItemClick = (item: FormSchema) => {
+  currentField.value = item
+  // 滚动右侧配置面板到顶部
+  const configPanel = document.querySelector('.config-panel .el-scrollbar__wrap')
+  if (configPanel) {
+    configPanel.scrollTop = 0
+  }
+}
+
+// 处理表单项删除
+const handleItemDelete = (item: FormSchema) => {
+  const index = formSchema.value.findIndex(field => field.field === item.field)
+  if (index > -1) {
+    formSchema.value.splice(index, 1)
+    if (currentField.value?.field === item.field) {
+      currentField.value = null
+    }
+  }
 }
 </script>
 
@@ -325,7 +347,37 @@ const renderOptionsConfig = (field: FormSchema) => {
             :schema="formSchema"
             :model="{}"
             :isCol="false"
-          />
+            :isCustom="true"
+          >
+            <template #default>
+              <template v-for="item in formSchema" :key="item.field">
+                <div 
+                  class="preview-form-item"
+                  :class="{ active: currentField?.field === item.field }"
+                  @click="handleItemClick(item)"
+                >
+                  <el-form-item
+                    :label="item.label"
+                    :prop="item.field"
+                  >
+                    <component
+                      :is="componentMap[item.component]"
+                      v-bind="item.componentProps"
+                    />
+                  </el-form-item>
+                  <div class="preview-form-actions">
+                    <el-button 
+                      type="danger" 
+                      link
+                      @click.stop="handleItemDelete(item)"
+                    >
+                      删除
+                    </el-button>
+                  </div>
+                </div>
+              </template>
+            </template>
+          </Form>
         </div>
       </el-scrollbar>
     </div>
@@ -357,42 +409,51 @@ const renderOptionsConfig = (field: FormSchema) => {
   left: 0;
   right: 0;
   bottom: 0;
+  background: #f5f7fa;
   
   .component-list {
-    width: 200px;
-    border-right: 1px solid #ddd;
+    width: 250px;
+    background: #fff;
+    border-right: 1px solid #ebeef5;
     overflow: hidden;
 
     :deep(.el-scrollbar__wrap) {
-      padding: 10px;
+      padding: 16px;
     }
 
     .component-item {
-      padding: 10px;
-      margin-bottom: 10px;
-      border: 1px solid #ddd;
+      padding: 12px 16px;
+      margin-bottom: 12px;
+      border: 1px dashed #dcdfe6;
+      border-radius: 4px;
       cursor: move;
+      transition: all 0.3s;
       
       &:hover {
-        background: #f5f7fa;
+        border-color: #409eff;
+        background: rgba(64, 158, 255, 0.05);
       }
     }
   }
 
   .preview-area {
     flex: 1;
-    background: #f5f7fa;
     overflow: hidden;
+    padding: 20px;
 
     .preview-content {
-      padding: 20px;
+      background: #fff;
+      border-radius: 4px;
       min-height: 100%;
+      padding: 20px;
+      box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.05);
     }
   }
 
   .config-panel {
-    width: 300px;
-    border-left: 1px solid #ddd;
+    width: 350px;
+    background: #fff;
+    border-left: 1px solid #ebeef5;
     overflow: hidden;
 
     :deep(.el-scrollbar__wrap) {
@@ -402,7 +463,8 @@ const renderOptionsConfig = (field: FormSchema) => {
     .actions {
       margin-top: 20px;
       text-align: center;
-      padding-bottom: 20px;
+      padding: 16px;
+      border-top: 1px solid #ebeef5;
     }
   }
 }
@@ -415,6 +477,53 @@ const renderOptionsConfig = (field: FormSchema) => {
   
   .option-input {
     flex: 1;
+  }
+}
+
+.preview-form-item {
+  position: relative;
+  padding: 12px;
+  border: 1px dashed transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s;
+  margin-bottom: 12px;
+  
+  &:hover {
+    border-color: #409eff;
+    background-color: rgba(64, 158, 255, 0.05);
+    
+    .preview-form-actions {
+      opacity: 1;
+    }
+  }
+  
+  &.active {
+    border-color: #409eff;
+    background-color: rgba(64, 158, 255, 0.1);
+    box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.2);
+    
+    .preview-form-actions {
+      opacity: 1;
+    }
+  }
+
+  .preview-form-actions {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0;
+    transition: opacity 0.3s;
+    background-color: #fff;
+    padding: 4px 8px;
+    border-radius: 4px;
+    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+  }
+
+  :deep(.el-form-item) {
+    margin-bottom: 0;
+    padding-right: 100px;
   }
 }
 </style> 
