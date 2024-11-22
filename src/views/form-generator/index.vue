@@ -4,113 +4,7 @@ import { FormSchema } from '@/components/Form'
 import { ElMessage } from 'element-plus'
 import { useDraggable } from '@vueuse/core'
 import { componentMap } from '@/components/Form/src/helper/componentMap'
-
-// 支持的表单控件列表
-const componentList = [
-  { 
-    label: '输入框', 
-    type: 'Input',
-    props: {
-      placeholder: '请输入',
-      clearable: true
-    },
-    defaultValue: ''
-  },
-  { 
-    label: '数字输入框', 
-    type: 'InputNumber',
-    props: {
-      min: 0,
-      max: 100,
-      step: 1,
-      precision: 0
-    },
-    defaultValue: 0
-  },
-  { 
-    label: '选择器', 
-    type: 'Select',
-    props: {
-      clearable: true,
-      placeholder: '请选择',
-      options: [
-        { label: '选项1', value: '1' },
-        { label: '选项2', value: '2' }
-      ]
-    },
-    defaultValue: ''
-  },
-  { 
-    label: '单选框组', 
-    type: 'RadioGroup',
-    props: {
-      options: [
-        { label: '选项1', value: '1' },
-        { label: '选项2', value: '2' }
-      ]
-    },
-    defaultValue: '1'
-  },
-  { 
-    label: '多选框组', 
-    type: 'CheckboxGroup',
-    props: {
-      options: [
-        { label: '选项1', value: '1' },
-        { label: '选项2', value: '2' }
-      ]
-    },
-    defaultValue: []
-  },
-  { 
-    label: '日期选择器', 
-    type: 'DatePicker',
-    props: {
-      type: 'date',
-      placeholder: '请选择日期',
-      clearable: true
-    },
-    defaultValue: null
-  },
-  { 
-    label: '时间选择器', 
-    type: 'TimePicker',
-    props: {
-      placeholder: '请选择时间',
-      clearable: true
-    },
-    defaultValue: null
-  },
-  { 
-    label: '开关', 
-    type: 'Switch',
-    props: {
-      activeText: '是',
-      inactiveText: '否'
-    },
-    defaultValue: false
-  },
-  { 
-    label: '滑块', 
-    type: 'Slider',
-    props: {
-      min: 0,
-      max: 100,
-      step: 1
-    },
-    defaultValue: 0
-  },
-  { 
-    label: '文本域', 
-    type: 'Input',
-    props: { 
-      type: 'textarea',
-      rows: 3,
-      placeholder: '请输入'
-    },
-    defaultValue: ''
-  }
-]
+import { componentList } from './config'
 
 const formSchema = ref<FormSchema[]>([])
 const currentField = ref<FormSchema | null>(null)
@@ -123,7 +17,7 @@ const dragState = reactive({
   dragOverIndex: -1
 })
 
-// 添加新组件
+// 添加新
 const addComponent = (component) => {
   const newField: FormSchema = {
     field: `field_${Date.now()}`,
@@ -142,45 +36,42 @@ const addComponent = (component) => {
 const onDrop = (e: DragEvent, index?: number) => {
   const componentType = e.dataTransfer?.getData('component')
   if (componentType) {
-    // 从左侧组件列表拖入
     const component = componentList.find(item => item.type === componentType)
     if (component) {
-      const newField: FormSchema = {
-        field: `field_${Date.now()}`,
-        label: component.label,
-        component: component.type,
-        componentProps: component.props || {},
-        value: component.defaultValue
-      }
-      
-      if (typeof index === 'number') {
-        formSchema.value.splice(index, 0, newField)
-      } else {
-        formSchema.value.push(newField)
-      }
-      
+      const newField = createField(component)
+      insertField(newField, index)
       nextTick(() => {
         currentField.value = newField
       })
     }
   } else {
-    // 预览区域内部拖拽排序
-    const dragField = e.dataTransfer?.getData('field')
-    if (dragField && dragState.dragItem) {
-      const dragIndex = formSchema.value.findIndex(item => item.field === dragField)
-      if (dragIndex > -1) {
-        formSchema.value.splice(dragIndex, 1)
-        formSchema.value.splice(index || formSchema.value.length, 0, dragState.dragItem)
-      }
-    }
+    handlePreviewDrop(e, index)
   }
-  dragState.dragging = false
-  dragState.dragItem = null
-  dragState.dragIndex = -1
-  dragState.dragOverIndex = -1
+  resetDragState()
 }
 
-// 处理拖拽开始
+// 插入字段
+const insertField = (field: FormSchema, index?: number) => {
+  if (typeof index === 'number') {
+    formSchema.value.splice(index, 0, field)
+  } else {
+    formSchema.value.push(field)
+  }
+}
+
+// 处理预览区域内部拖拽
+const handlePreviewDrop = (e: DragEvent, index?: number) => {
+  const dragField = e.dataTransfer?.getData('field')
+  if (dragField && dragState.dragItem) {
+    const dragIndex = formSchema.value.findIndex(item => item.field === dragField)
+    if (dragIndex > -1) {
+      formSchema.value.splice(dragIndex, 1)
+      insertField(dragState.dragItem, index)
+    }
+  }
+}
+
+// 处理拖开始
 const handleDragStart = (e: DragEvent, item: FormSchema, index: number) => {
   dragState.dragging = true
   dragState.dragItem = item
@@ -362,6 +253,49 @@ const getOptionComponent = (type: string) => {
   }
   return componentMap[type]
 }
+
+// 预览区域拖拽排序
+const previewRef = ref<HTMLElement | null>(null)
+const { isDragging: isPreviewDragging } = useDraggable(previewRef, {
+  onStart: (el, { x, y }) => {
+    const item = formSchema.value.find(field => field.field === el.dataset.field)
+    if (item) {
+      dragState.dragItem = item
+      dragState.dragIndex = formSchema.value.indexOf(item)
+    }
+  },
+  onEnd: (el, { x, y }) => {
+    if (dragState.dragItem && dragState.dragOverIndex > -1) {
+      const newIndex = dragState.dragOverIndex
+      const oldIndex = dragState.dragIndex
+      
+      if (newIndex !== oldIndex) {
+        const item = formSchema.value.splice(oldIndex, 1)[0]
+        formSchema.value.splice(newIndex, 0, item)
+      }
+    }
+    resetDragState()
+  }
+})
+
+// 重置拖拽状态
+const resetDragState = () => {
+  dragState.dragging = false
+  dragState.dragItem = null
+  dragState.dragIndex = -1 
+  dragState.dragOverIndex = -1
+}
+
+// 创建新字段
+const createField = (component: any): FormSchema => {
+  return {
+    field: `field_${Date.now()}`,
+    label: component.label,
+    component: component.type,
+    componentProps: component.props || {},
+    value: component.defaultValue
+  }
+}
 </script>
 
 <template>
@@ -369,6 +303,7 @@ const getOptionComponent = (type: string) => {
     <!-- 左侧组件列表 -->
     <div class="component-list">
       <el-scrollbar>
+        <p class="section-title">表单控件</p>
         <div
           v-for="item in componentList"
           :key="item.type"
@@ -391,6 +326,7 @@ const getOptionComponent = (type: string) => {
           @dragover.prevent
         >
           <Form
+            v-show="formSchema?.length > 0"
             :schema="formSchema"
             :model="{}"
             :isCol="false"
@@ -402,14 +338,16 @@ const getOptionComponent = (type: string) => {
                   class="preview-form-item"
                   :class="{
                     active: currentField?.field === item.field,
-                    'drag-over': dragState.dragOverIndex === index
+                    'drag-over': dragState.dragOverIndex === index,
+                    dragging: dragState.dragItem?.field === item.field
                   }"
+                  :data-field="item.field"
                   draggable="true"
                   @click="handleItemClick(item)"
                   @dragstart="e => handleDragStart(e, item, index)"
                   @dragover="e => handleDragOver(e, index)"
                   @drop="e => onDrop(e, index)"
-                  @dragend="() => dragState.dragging = false"
+                  @dragend="resetDragState"
                 >
                   <el-form-item
                     :label="item.label"
@@ -461,6 +399,7 @@ const getOptionComponent = (type: string) => {
               </template>
             </template>
           </Form>
+          <p class="empty-tip" v-show="formSchema?.length === 0">请从左侧拖拽组件到表单中</p>
         </div>
       </el-scrollbar>
     </div>
@@ -468,6 +407,7 @@ const getOptionComponent = (type: string) => {
     <!-- 右侧配置面板 -->
     <div class="config-panel">
       <el-scrollbar>
+        <p class="section-title">控件配置</p>
         <template v-if="currentField">
           <Form
             :schema="getConfigSchema"
@@ -488,22 +428,26 @@ const getOptionComponent = (type: string) => {
 .form-generator {
   display: flex;
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
   background: #f5f7fa;
   
+  // 左侧组件列表
   .component-list {
-    width: 250px;
+    width: 280px;
     background: #fff;
     border-right: 1px solid #ebeef5;
-    overflow: hidden;
-
+    
     :deep(.el-scrollbar__wrap) {
-      padding: 16px;
+      padding: 20px;
     }
-
+    
+    .title {
+      font-size: 16px;
+      font-weight: 500;
+      margin-bottom: 16px;
+      color: #1f2f3d;
+    }
+    
     .component-item {
       padding: 12px 16px;
       margin-bottom: 12px;
@@ -511,44 +455,128 @@ const getOptionComponent = (type: string) => {
       border-radius: 4px;
       cursor: move;
       transition: all 0.3s;
+      color: #606266;
       
       &:hover {
-        border-color: #409eff;
-        background: rgba(64, 158, 255, 0.05);
+        border-color: var(--el-color-primary);
+        color: var(--el-color-primary);
+        background: var(--el-color-primary-light-9);
+      }
+      
+      &:active {
+        cursor: grabbing;
       }
     }
   }
 
+  // 中间预览区域
   .preview-area {
     flex: 1;
-    overflow: hidden;
     padding: 20px;
-
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    
+    :deep(.el-scrollbar) {
+      flex: 1;
+      height: 100%;
+    }
+    
     .preview-content {
       background: #fff;
-      border-radius: 4px;
+      border-radius: 8px;
       min-height: 100%;
-      padding: 20px;
+      height: 100%;
+      padding: 24px;
       box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.05);
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .empty-tip {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--el-text-color-secondary);
+      font-size: 14px;
     }
   }
 
+  // 右侧配置面板
   .config-panel {
     width: 350px;
     background: #fff;
     border-left: 1px solid #ebeef5;
-    overflow: hidden;
-
+    
+    .title {
+      font-size: 16px;
+      font-weight: 500;
+      padding: 16px 20px;
+      border-bottom: 1px solid #ebeef5;
+      color: #1f2f3d;
+    }
+    
     :deep(.el-scrollbar__wrap) {
       padding: 20px;
     }
-
+    
     .actions {
-      margin-top: 20px;
-      text-align: center;
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
       padding: 16px;
+      text-align: center;
+      background: #fff;
       border-top: 1px solid #ebeef5;
     }
+  }
+}
+
+// 预览区域表单项
+.preview-form-item {
+  position: relative;
+  padding: 16px;
+  border: 1px dashed transparent;
+  border-radius: 8px;
+  cursor: move;
+  transition: all 0.3s;
+  margin-bottom: 16px;
+  
+  &:hover {
+    border-color: var(--el-color-primary);
+    background: var(--el-color-primary-light-9);
+  }
+  
+  &.active {
+    border-color: var(--el-color-primary);
+    background: var(--el-color-primary-light-8);
+    box-shadow: 0 0 0 2px var(--el-color-primary-light-5);
+  }
+  
+  &.drag-over {
+    border-style: dashed;
+    border-color: var(--el-color-primary);
+    
+    &::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border: 2px solid var(--el-color-primary);
+      border-radius: 8px;
+      pointer-events: none;
+    }
+  }
+  
+  &.dragging {
+    opacity: 0.5;
+    cursor: grabbing;
+  }
+  
+  :deep(.el-form-item) {
+    margin-bottom: 0;
+    padding-right: 100px;
   }
 }
 
@@ -651,5 +679,16 @@ const getOptionComponent = (type: string) => {
       flex: 1;
     }
   }
+}
+
+.section-title {
+  position: relative;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--el-text-color-primary);
+  margin: 0 0 16px;
+  padding-left: 12px;
+  line-height: 1.4;
+  text-align: center;
 }
 </style> 
