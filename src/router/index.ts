@@ -255,6 +255,27 @@ export const wholeMenuRouterMap: RouteRecordRaw[] = [
     ]
   },
   {
+    path: '/schedule',
+    component: Layout,
+    name: 'Schedule',
+    redirect: '/schedule/index',
+    meta: {
+      title: '日程安排',
+      icon: 'ant-design:dashboard-outlined'
+    },
+    children: [
+      {
+        path: 'index',
+        component: () => import('@/views/schedule/index.vue'),
+        name: 'ScheduleIndex',
+        meta: {
+          title: '日程安排',
+          icon: 'ant-design:dashboard-outlined'
+        }
+      }
+    ]
+  },
+  {
     path: '/auth',
     component: Layout,
     name: 'auth',

@@ -20,10 +20,7 @@ const viewCode = () => {
       </ElAvatar>
       <ElDropdown>
         <div class="cursor-pointer flex-center">
-          <span class="ml-5 mr-3">{{ userInfo?.username || '-' }}</span>
-          <ElIcon>
-            <ArrowDown></ArrowDown>
-          </ElIcon>
+          <span class="ml-2">{{ userInfo?.username || '-' }}</span>
         </div>
 
         <template #dropdown>

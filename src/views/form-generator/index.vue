@@ -17,7 +17,6 @@ const dragState = reactive({
   dragOverIndex: -1
 })
 
-// 添加新
 const addComponent = (component) => {
   const newField: FormSchema = {
     field: `field_${Date.now()}`,
