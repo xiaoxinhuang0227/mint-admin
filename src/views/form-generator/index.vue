@@ -1,5 +1,5 @@
 <script setup lang="tsx">
-import { ref, reactive, nextTick } from 'vue'
+import { ref, reactive, nextTick, computed } from 'vue'
 import { FormSchema } from '@/components/Form'
 import { ElMessage } from 'element-plus'
 import { useDraggable } from '@vueuse/core'
@@ -176,111 +176,120 @@ const exportConfig = () => {
   }
 }
 
-// 渲染组件特定配置
-const renderComponentConfig = (field: FormSchema) => {
-  const component = componentList.find(item => item.type === field.component)
-  if (!component?.props) return null
+// 右侧配置面板的表单配置
+const getConfigSchema = computed(() => {
+  const baseSchema = [
+    {
+      field: 'field',
+      label: '字段名',
+      component: 'Input'
+    },
+    {
+      field: 'label',
+      label: '标签文本', 
+      component: 'Input'
+    },
+    {
+      field: 'required',
+      label: '必填',
+      component: 'Switch'
+    }
+  ]
 
-  return () => (
+  if (!currentField.value?.component) return baseSchema
+
+  const component = componentList.find(item => item.type === currentField.value.component)
+  if (!component?.props) return baseSchema
+
+  // 根据组件类型添加特定配置项
+  const propsSchema = Object.entries(component.props).map(([key, defaultValue]) => {
+    const baseConfig = {
+      field: `componentProps.${key}`,
+      label: key,
+    }
+
+    if (Array.isArray(defaultValue) && key === 'options') {
+      return {
+        ...baseConfig,
+        component: 'Input', // 临时改为 Input，后续可以自定义组件
+        slot: {
+          default: () => renderOptionsConfig(currentField.value)
+        }
+      }
+    }
+
+    if (typeof defaultValue === 'string') {
+      return {
+        ...baseConfig,
+        component: 'Input'
+      }
+    }
+
+    if (typeof defaultValue === 'number') {
+      return {
+        ...baseConfig,
+        component: 'InputNumber'
+      }
+    }
+
+    if (typeof defaultValue === 'boolean') {
+      return {
+        ...baseConfig,
+        component: 'Switch'
+      }
+    }
+
+    return null
+  }).filter(Boolean)
+
+  return [...baseSchema, ...propsSchema]
+})
+
+// 渲染选项配置
+const renderOptionsConfig = (field: FormSchema) => {
+  const options = field.componentProps?.options || []
+  return (
     <>
-      {Object.entries(component.props).map(([key, defaultValue], index) => {
-        // 处理选项类配置(Select/Radio/Checkbox)
-        if (Array.isArray(defaultValue) && key === 'options') {
-          const options = field.componentProps?.options || defaultValue
-          return (
-            <el-form-item label={key} key={`${field.field}-${key}-${index}`}>
-              {options.map((option, optionIndex) => (
-                <div class="option-item" key={optionIndex}>
-                  <el-input
-                    modelValue={option.label}
-                    onUpdate:modelValue={(val) => {
-                      const newOptions = [...options]
-                      newOptions[optionIndex] = { ...option, label: val }
-                      updateFieldConfig(field.field, {
-                        componentProps: { ...field.componentProps, options: newOptions }
-                      })
-                    }}
-                    placeholder="标签"
-                    class="option-input"
-                  />
-                  <el-input
-                    modelValue={option.value}
-                    onUpdate:modelValue={(val) => {
-                      const newOptions = [...options]
-                      newOptions[optionIndex] = { ...option, value: val }
-                      updateFieldConfig(field.field, {
-                        componentProps: { ...field.componentProps, options: newOptions }
-                      })
-                    }}
-                    placeholder="值"
-                    class="option-input"
-                  />
-                  <el-button 
-                    type="danger" 
-                    link
-                    onClick={() => {
-                      const newOptions = [...options]
-                      newOptions.splice(optionIndex, 1)
-                      updateFieldConfig(field.field, {
-                        componentProps: { ...field.componentProps, options: newOptions }
-                      })
-                    }}
-                  >
-                    删除
-                  </el-button>
-                </div>
-              ))}
-              <el-button 
-                link 
-                type="primary"
-                onClick={() => {
-                  const newOptions = [...options]
-                  newOptions.push({ label: `选项${newOptions.length + 1}`, value: `${newOptions.length + 1}` })
-                  updateFieldConfig(field.field, {
-                    componentProps: { ...field.componentProps, options: newOptions }
-                  })
-                }}
-              >
-                添加选项
-              </el-button>
-            </el-form-item>
-          )
-        }
-        
-        // 处理字符串类型配置
-        if (typeof defaultValue === 'string') {
-          return (
-            <el-form-item label={key} key={`${field.field}-${key}-${index}`}>
-              <el-input 
-                modelValue={field.componentProps?.[key]}
-                onUpdate:modelValue={(val) => {
-                  updateFieldConfig(field.field, {
-                    componentProps: { ...field.componentProps, [key]: val }
-                  })
-                }}
-                placeholder={`请输入${key}`}
-              />
-            </el-form-item>
-          )
-        }
-        
-        // 处理数字类型配置
-        if (typeof defaultValue === 'number') {
-          return (
-            <el-form-item label={key} key={`${field.field}-${key}-${index}`}>
-              <el-input-number 
-                modelValue={field.componentProps?.[key]}
-                onUpdate:modelValue={(val) => {
-                  updateFieldConfig(field.field, {
-                    componentProps: { ...field.componentProps, [key]: val }
-                  })
-                }}
-                placeholder={`请输入${key}`}
-              />
-            </el-form-item>
-          )
-        }
-      })}
+      {options.map((option, index) => (
+        <div class="option-item" key={index}>
+          <el-input
+            v-model={option.label}
+            placeholder="标签"
+            class="option-input"
+          />
+          <el-input
+            v-model={option.value}
+            placeholder="值"
+            class="option-input"
+          />
+          <el-button 
+            type="danger" 
+            link
+            onClick={() => {
+              const newOptions = [...options]
+              newOptions.splice(index, 1)
+              updateFieldConfig(field.field, {
+                componentProps: { ...field.componentProps, options: newOptions }
+              })
+            }}
+          >
+            删除
+          </el-button>
+        </div>
+      ))}
+      <el-button 
+        link 
+        type="primary"
+        onClick={() => {
+          const newOptions = [...options]
+          newOptions.push({ label: `选项${newOptions.length + 1}`, value: `${newOptions.length + 1}` })
+          updateFieldConfig(field.field, {
+            componentProps: { ...field.componentProps, options: newOptions }
+          })
+        }}
+      >
+        添加选项
+      </el-button>
     </>
   )
 }
@@ -290,52 +299,52 @@ const renderComponentConfig = (field: FormSchema) => {
   <div class="form-generator">
     <!-- 左侧组件列表 -->
     <div class="component-list">
-      <div
-        v-for="item in componentList"
-        :key="item.type"
-        class="component-item"
-        draggable="true"
-        @dragstart="e => e.dataTransfer.setData('component', item.type)"
-        @click="onClickAdd(item)"
-      >
-        {{ item.label }}
-      </div>
+      <el-scrollbar>
+        <div
+          v-for="item in componentList"
+          :key="item.type"
+          class="component-item"
+          draggable="true"
+          @dragstart="e => e.dataTransfer.setData('component', item.type)"
+          @click="onClickAdd(item)"
+        >
+          {{ item.label }}
+        </div>
+      </el-scrollbar>
     </div>
 
     <!-- 中间预览区域 -->
-    <div 
-      class="preview-area"
-      @drop="onDrop"
-      @dragover.prevent
-    >
-      <Form
-        :schema="formSchema"
-        :model="{}"
-      />
+    <div class="preview-area">
+      <el-scrollbar>
+        <div 
+          class="preview-content"
+          @drop="onDrop"
+          @dragover.prevent
+        >
+          <Form
+            :schema="formSchema"
+            :model="{}"
+            :isCol="false"
+          />
+        </div>
+      </el-scrollbar>
     </div>
 
     <!-- 右侧配置面板 -->
     <div class="config-panel">
-      <template v-if="currentField">
-        <el-form label-width="100px">
-          <el-form-item label="字段名">
-            <el-input v-model="currentField.field" />
-          </el-form-item>
-          <el-form-item label="标签文本">
-            <el-input v-model="currentField.label" />
-          </el-form-item>
-          <el-form-item label="必填">
-            <el-switch v-model="currentField.required" />
-          </el-form-item>
-          <!-- 渲染组件特定配置 -->
-          <template v-if="currentField.component">
-            <component :is="renderComponentConfig(currentField)" />
-          </template>
-        </el-form>
-      </template>
-      <div class="actions">
-        <el-button type="primary" @click="exportConfig">导出配置</el-button>
-      </div>
+      <el-scrollbar>
+        <template v-if="currentField">
+          <Form
+            :schema="getConfigSchema"
+            :model="currentField"
+            label-width="100px"
+            :isCol="false"
+          />
+        </template>
+        <div class="actions">
+          <el-button type="primary" @click="exportConfig">导出配置</el-button>
+        </div>
+      </el-scrollbar>
     </div>
   </div>
 </template>
@@ -343,12 +352,20 @@ const renderComponentConfig = (field: FormSchema) => {
 <style lang="scss" scoped>
 .form-generator {
   display: flex;
-  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   
   .component-list {
     width: 200px;
     border-right: 1px solid #ddd;
-    padding: 10px;
+    overflow: hidden;
+
+    :deep(.el-scrollbar__wrap) {
+      padding: 10px;
+    }
 
     .component-item {
       padding: 10px;
@@ -364,18 +381,28 @@ const renderComponentConfig = (field: FormSchema) => {
 
   .preview-area {
     flex: 1;
-    padding: 20px;
     background: #f5f7fa;
+    overflow: hidden;
+
+    .preview-content {
+      padding: 20px;
+      min-height: 100%;
+    }
   }
 
   .config-panel {
     width: 300px;
     border-left: 1px solid #ddd;
-    padding: 20px;
+    overflow: hidden;
+
+    :deep(.el-scrollbar__wrap) {
+      padding: 20px;
+    }
 
     .actions {
       margin-top: 20px;
       text-align: center;
+      padding-bottom: 20px;
     }
   }
 }
