@@ -177,123 +177,106 @@ const exportConfig = () => {
   }
 }
 
-// 右侧配置面板的表单配置
-const getConfigSchema = computed(() => {
-  const baseSchema = [
-    {
-      field: 'field',
-      label: '字段名',
-      component: 'Input'
-    },
-    {
-      field: 'label',
-      label: '标签文本', 
-      component: 'Input'
-    },
-    {
-      field: 'required',
-      label: '必填',
-      component: 'Switch'
-    }
-  ]
-
-  if (!currentField.value?.component) return baseSchema
-
-  const component = componentList.find(item => item.type === currentField.value.component)
-  if (!component?.props) return baseSchema
-
-  // 根据组件类型添加特定配置项
-  const propsSchema = Object.entries(component.props).map(([key, defaultValue]) => {
-    const baseConfig = {
-      field: `componentProps.${key}`,
-      label: key,
-    }
-
-    if (Array.isArray(defaultValue) && key === 'options') {
-      return {
-        ...baseConfig,
-        component: 'Input', // 临时改为 Input，后续可以自定义组件
-        slot: {
-          default: () => renderOptionsConfig(currentField.value)
-        }
-      }
-    }
-
-    if (typeof defaultValue === 'string') {
-      return {
-        ...baseConfig,
-        component: 'Input'
-      }
-    }
-
-    if (typeof defaultValue === 'number') {
-      return {
-        ...baseConfig,
-        component: 'InputNumber'
-      }
-    }
-
-    if (typeof defaultValue === 'boolean') {
-      return {
-        ...baseConfig,
-        component: 'Switch'
-      }
-    }
-
-    return null
-  }).filter(Boolean)
-
-  return [...baseSchema, ...propsSchema]
-})
-
 // 渲染选项配置
 const renderOptionsConfig = (field: FormSchema) => {
   const options = field.componentProps?.options || []
+  
   return (
-    <>
-      {options.map((option, index) => (
-        <div class="option-item" key={index}>
-          <el-input
-            v-model={option.label}
-            placeholder="标签"
-            class="option-input"
-          />
-          <el-input
-            v-model={option.value}
-            placeholder="值"
-            class="option-input"
-          />
-          <el-button 
-            type="danger" 
-            link
-            onClick={() => {
-              const newOptions = [...options]
-              newOptions.splice(index, 1)
-              updateFieldConfig(field.field, {
-                componentProps: { ...field.componentProps, options: newOptions }
-              })
-            }}
-          >
-            除
-          </el-button>
-        </div>
-      ))}
+    <div class="options-config">
+      <div class="options-list">
+        {options.map((option, index) => (
+          <div class="option-item" key={index}>
+            <el-input
+              v-model={option.label}
+              placeholder="选项文本"
+              class="option-input"
+              onChange={() => updateOptions(field, options)}
+            />
+            <el-input
+              v-model={option.value}
+              placeholder="选项值"
+              class="option-input"
+              onChange={() => updateOptions(field, options)}
+            />
+            <el-button 
+              type="danger" 
+              link
+              onClick={() => {
+                options.splice(index, 1)
+                updateOptions(field, options)
+              }}
+            >
+              删除
+            </el-button>
+          </div>
+        ))}
+      </div>
       <el-button 
         link 
         type="primary"
         onClick={() => {
-          const newOptions = [...options]
-          newOptions.push({ label: `选项${newOptions.length + 1}`, value: `${newOptions.length + 1}` })
-          updateFieldConfig(field.field, {
-            componentProps: { ...field.componentProps, options: newOptions }
+          options.push({
+            label: `选项${options.length + 1}`,
+            value: `${options.length + 1}`
           })
+          updateOptions(field, options)
         }}
       >
         添加选项
       </el-button>
-    </>
+    </div>
   )
 }
+
+// 更新选项配置
+const updateOptions = (field: FormSchema, options: any[]) => {
+  updateFieldConfig(field.field, {
+    componentProps: {
+      ...field.componentProps,
+      options: [...options]
+    }
+  })
+}
+
+// 获取配置面板的表单结构
+const getConfigSchema = computed(() => {
+  if (!currentField.value) return []
+  
+  const baseSchema = [
+    {
+      field: 'label',
+      label: '字段标签',
+      component: 'Input',
+      componentProps: {
+        placeholder: '请输入标签'
+      }
+    },
+    {
+      field: 'field',
+      label: '字段名称',
+      component: 'Input',
+      componentProps: {
+        placeholder: '请输入字段名'
+      }
+    }
+  ]
+
+  // 如果是有选项的控件，添加选项配置
+  if (['Select', 'RadioGroup', 'CheckboxGroup'].includes(currentField.value.component)) {
+    baseSchema.push({
+      field: 'options',
+      label: '选项配置',
+      component: 'Custom',
+      formItemProps: {
+        slots: {
+          default: () => renderOptionsConfig(currentField.value!)
+        }
+      }
+    })
+  }
+
+  return baseSchema
+})
 
 // 处理表单项点击
 const handleItemClick = (item: FormSchema) => {
@@ -314,6 +297,15 @@ const handleItemDelete = (item: FormSchema) => {
       currentField.value = null
     }
   }
+}
+
+const getOptionComponent = (type: string) => {
+  const componentMap = {
+    'Select': 'el-option',
+    'RadioGroup': 'el-radio',
+    'CheckboxGroup': 'el-checkbox'
+  }
+  return componentMap[type]
 }
 </script>
 
@@ -363,7 +355,35 @@ const handleItemDelete = (item: FormSchema) => {
                     <component
                       :is="componentMap[item.component]"
                       v-bind="item.componentProps"
-                    />
+                      v-model="item.value"
+                    >
+                      <template v-if="item.component === 'Select'">
+                        <el-option
+                          v-for="option in item.componentProps?.options"
+                          :key="option.value"
+                          :label="option.label"
+                          :value="option.value"
+                        />
+                      </template>
+                      <template v-else-if="item.component === 'RadioGroup'">
+                        <el-radio
+                          v-for="option in item.componentProps?.options"
+                          :key="option.value"
+                          :label="option.value"
+                        >
+                          {{ option.label }}
+                        </el-radio>
+                      </template>
+                      <template v-else-if="item.component === 'CheckboxGroup'">
+                        <el-checkbox
+                          v-for="option in item.componentProps?.options"
+                          :key="option.value"
+                          :label="option.value"
+                        >
+                          {{ option.label }}
+                        </el-checkbox>
+                      </template>
+                    </component>
                   </el-form-item>
                   <div class="preview-form-actions">
                     <el-button 
@@ -524,6 +544,30 @@ const handleItemDelete = (item: FormSchema) => {
   :deep(.el-form-item) {
     margin-bottom: 0;
     padding-right: 100px;
+  }
+}
+
+.options-config {
+  .options-list {
+    border: 1px solid #ebeef5;
+    border-radius: 4px;
+    padding: 12px;
+    margin-bottom: 12px;
+  }
+  
+  .option-item {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+    align-items: center;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+    
+    .option-input {
+      flex: 1;
+    }
   }
 }
 </style> 
