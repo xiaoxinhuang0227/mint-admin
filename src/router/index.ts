@@ -234,6 +234,27 @@ export const wholeMenuRouterMap: RouteRecordRaw[] = [
     ]
   },
   {
+    path: '/form-generator',
+    component: Layout,
+    name: 'formGenerator',
+    redirect: '/form-generator/index',
+    meta: {
+      title: '表单生成器',
+      icon: 'ant-design:dashboard-outlined'
+    },
+    children: [
+      {
+        path: 'index',
+        component: () => import('@/views/form-generator/index.vue'),
+        name: 'formGeneratorIndex',
+        meta: {
+          title: '表单生成器',
+      icon: 'ant-design:dashboard-outlined'
+        }
+      }
+    ]
+  },
+  {
     path: '/auth',
     component: Layout,
     name: 'auth',
