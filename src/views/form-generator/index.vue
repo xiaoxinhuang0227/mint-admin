@@ -115,6 +115,14 @@ const componentList = [
 const formSchema = ref<FormSchema[]>([])
 const currentField = ref<FormSchema | null>(null)
 
+// 拖拽相关状态
+const dragState = reactive({
+  dragging: false,
+  dragItem: null as FormSchema | null,
+  dragIndex: -1,
+  dragOverIndex: -1
+})
+
 // 添加新组件
 const addComponent = (component) => {
   const newField: FormSchema = {
@@ -131,12 +139,59 @@ const addComponent = (component) => {
 }
 
 // 处理从左侧拖入的新组件
-const onDrop = (e) => {
-  const componentType = e.dataTransfer.getData('component')
-  const component = componentList.find(item => item.type === componentType)
-  if (component) {
-    addComponent(component)
+const onDrop = (e: DragEvent, index?: number) => {
+  const componentType = e.dataTransfer?.getData('component')
+  if (componentType) {
+    // 从左侧组件列表拖入
+    const component = componentList.find(item => item.type === componentType)
+    if (component) {
+      const newField: FormSchema = {
+        field: `field_${Date.now()}`,
+        label: component.label,
+        component: component.type,
+        componentProps: component.props || {},
+        value: component.defaultValue
+      }
+      
+      if (typeof index === 'number') {
+        formSchema.value.splice(index, 0, newField)
+      } else {
+        formSchema.value.push(newField)
+      }
+      
+      nextTick(() => {
+        currentField.value = newField
+      })
+    }
+  } else {
+    // 预览区域内部拖拽排序
+    const dragField = e.dataTransfer?.getData('field')
+    if (dragField && dragState.dragItem) {
+      const dragIndex = formSchema.value.findIndex(item => item.field === dragField)
+      if (dragIndex > -1) {
+        formSchema.value.splice(dragIndex, 1)
+        formSchema.value.splice(index || formSchema.value.length, 0, dragState.dragItem)
+      }
+    }
   }
+  dragState.dragging = false
+  dragState.dragItem = null
+  dragState.dragIndex = -1
+  dragState.dragOverIndex = -1
+}
+
+// 处理拖拽开始
+const handleDragStart = (e: DragEvent, item: FormSchema, index: number) => {
+  dragState.dragging = true
+  dragState.dragItem = item
+  dragState.dragIndex = index
+  e.dataTransfer?.setData('field', item.field)
+}
+
+// 处理拖拽经过
+const handleDragOver = (e: DragEvent, index: number) => {
+  e.preventDefault()
+  dragState.dragOverIndex = index
 }
 
 // 处理点击添加组件
@@ -342,11 +397,19 @@ const getOptionComponent = (type: string) => {
             :isCustom="true"
           >
             <template #default>
-              <template v-for="item in formSchema" :key="item.field">
+              <template v-for="(item, index) in formSchema" :key="item.field">
                 <div 
                   class="preview-form-item"
-                  :class="{ active: currentField?.field === item.field }"
+                  :class="{
+                    active: currentField?.field === item.field,
+                    'drag-over': dragState.dragOverIndex === index
+                  }"
+                  draggable="true"
                   @click="handleItemClick(item)"
+                  @dragstart="e => handleDragStart(e, item, index)"
+                  @dragover="e => handleDragOver(e, index)"
+                  @drop="e => onDrop(e, index)"
+                  @dragend="() => dragState.dragging = false"
                 >
                   <el-form-item
                     :label="item.label"
@@ -544,6 +607,25 @@ const getOptionComponent = (type: string) => {
   :deep(.el-form-item) {
     margin-bottom: 0;
     padding-right: 100px;
+  }
+
+  &.drag-over {
+    border-color: #409eff;
+    border-style: dashed;
+    
+    &::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: -2px;
+      height: 2px;
+      background-color: #409eff;
+    }
+  }
+  
+  &.dragging {
+    opacity: 0.5;
   }
 }
 
