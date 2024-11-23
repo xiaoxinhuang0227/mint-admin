@@ -5,7 +5,6 @@ import { ElCalendar, ElMessage } from 'element-plus'
 
 interface ScheduleItem {
   id: number
-  date: string
   time: string
   title: string
   content: string
@@ -14,63 +13,113 @@ interface ScheduleItem {
   preparation?: string
 }
 
-const currentDate = ref(new Date())
-const scheduleList = ref<ScheduleItem[]>([
+interface DaySchedule {
+  date: string
+  schedules: ScheduleItem[]
+}
+
+// 1. 首先声明所有的响应式变量
+const currentDate = ref<Date>(new Date())
+const scheduleList = ref<DaySchedule[]>([
   {
-    id: 1,
-    date: dayjs().format('YYYY-MM-DD'),
-    time: '09:00',
-    title: '晨会',
-    content: '讨论本周工作进度',
-    type: 'primary',
-    category: '工作'
-  },
-  {
-    id: 2,
-    date: dayjs().format('YYYY-MM-DD'),
-    time: '11:00',
-    title: '需求评审',
-    content: '新功能需求讨论',
-    type: 'warning',
-    category: '工作'
-  },
-  {
-    id: 3,
-    date: dayjs().format('YYYY-MM-DD'),
-    time: '14:30',
-    title: '代码评审',
-    content: '评审新提交的代码',
-    type: 'success',
-    category: '工作'
-  },
-  {
-    id: 4,
-    date: dayjs().format('YYYY-MM-DD'),
-    time: '16:00',
-    title: '产品会议',
-    content: '讨论产品方向',
-    type: 'danger',
-    category: '工作'
+    date: dayjs(new Date()).format('YYYY-MM-DD'),
+    schedules: [
+      {
+        id: 1,
+        time: '09:00',
+        title: '晨会',
+        content: '讨论本周工作进度',
+        type: 'primary',
+        category: '工作'
+      },
+      {
+        id: 2,
+        time: '11:00',
+        title: '需求评审',
+        content: '新功能需求讨论',
+        type: 'warning',
+        category: '工作'
+      },
+      {
+        id: 3,
+        time: '14:30',
+        title: '代码评审',
+        content: '评审新提交的代码',
+        type: 'success',
+        category: '工作'
+      },
+      {
+        id: 4,
+        time: '16:00',
+        title: '产品会议',
+        content: '讨论产品方向',
+        type: 'danger',
+        category: '工作'
+      }
+    ]
   }
 ])
 
+// 2. 然后声明计算属性
 const dateTitle = computed(() => {
   return dayjs(currentDate.value).format('YYYY年MM月DD日')
 })
 
-const handleDateChange = (date: Date) => {
+const currentSchedules = computed(() => {
+  const date = dayjs(currentDate.value).format('YYYY-MM-DD')
+  return scheduleList.value.find(item => item.date === date)?.schedules || []
+})
+
+// 3. 最后声明方法
+const handleDateClick = (date: Date) => {
   currentDate.value = date
+  const selectedDate = dayjs(date).format('YYYY-MM-DD')
+  
+  // 查找当前日期的日程
+  const currentSchedule = scheduleList.value.find(item => item.date === selectedDate)
+  
+  // 如果没有找到日程，添加一个空的日程列表
+  if (!currentSchedule) {
+    scheduleList.value.push({
+      date: selectedDate,
+      schedules: []
+    })
+  }
 }
 
-const dialogVisible = ref(false)
-const scheduleForm = ref<Partial<ScheduleItem>>({
-  title: '',
-  time: '',
-  content: '',
-  type: 'primary',
-  category: '工作',
-  preparation: ''
-})
+const calendarCellRenderer = ({ data, date }) => {
+  try {
+    const cellDate = data.day
+    const formattedDate = dayjs(cellDate).format('MM-DD')
+    const daySchedule = scheduleList.value.find(item => item.date === cellDate)
+    
+    return (
+      <div 
+        class={[
+          'calendar-cell',
+        ]}
+        onClick={() => handleDateClick(date)}
+      >
+        <span class="calendar-day">{formattedDate}</span>
+        { daySchedule?.schedules?.slice(0, 3)?.map(schedule => (
+          <div
+            key={ schedule.id }
+            class={`schedule-marker schedule-marker--${schedule.type}`}
+          >
+            { schedule.title }
+          </div>
+        ))}
+      </div>
+    )
+  } catch (error) {
+    console.error('Calendar cell render error:', error)
+    return <div class="calendar-cell"><span class="calendar-day">{formattedDate}</span></div>
+  }
+}
+
+const handleAddSchedule = () => {
+  // ... 添加日程的逻辑
+}
 
 const categoryOptions = [
   { label: '旅游', value: '旅游', type: 'primary' },
@@ -81,101 +130,56 @@ const categoryOptions = [
   { label: '其他事务', value: '其他事务', type: 'info' }
 ]
 
-const handleAddSchedule = () => {
-  dialogVisible.value = true
-  scheduleForm.value = {
-    time: dayjs().format('HH:mm'),
-    type: 'primary',
-    category: '工作'
-  }
-}
-
-const calendarCellRenderer = ({ data, date }) => {
-  const currentDate = dayjs(date).format('YYYY-MM-DD')
-  const daySchedules = scheduleList.value.filter(item => item.date === currentDate)
-  
-  return (
-    <div class="calendar-cell">
-      <span class="calendar-day">{data.day}</span>
-      {daySchedules.length > 0 && daySchedules.map(schedule => (
-        <div
-          key={schedule.id}
-          class={`schedule-marker schedule-marker--${schedule.type}`}
-          title={`${schedule.time} ${schedule.title}`}
-        >
-          {schedule.title}
-        </div>
-      ))}
-    </div>
-  )
-}
-
-const handleSubmit = () => {
-  if (!scheduleForm.value.title || !scheduleForm.value.time) {
-    ElMessage.warning('请填写标题和时间')
-    return
-  }
-
-  const newSchedule: ScheduleItem = {
-    id: Date.now(),
-    date: dayjs(currentDate.value).format('YYYY-MM-DD'),
-    ...scheduleForm.value as Omit<ScheduleItem, 'id' | 'date'>
-  }
-
-  scheduleList.value.push(newSchedule)
-  scheduleList.value.sort((a, b) => a.time.localeCompare(b.time))
-  dialogVisible.value = false
-}
 </script>
 
 <template>
   <div class="page-schedule">
     <div class="schedule-wrap">
       <ContentWrap class="calendar-wrap">
-        <ElCalendar v-model="currentDate" @input="handleDateChange">
+        <ElCalendar 
+          v-model="currentDate"
+        >
           <template #date-cell="scope">
-            <div>
-              <component :is="calendarCellRenderer(scope)" />
-            </div>
+            <component :is="calendarCellRenderer(scope)" />
           </template>
         </ElCalendar>
-        <!-- <el-calendar>
-        <template #date-cell="{ data }">
-          <p :class="data.isSelected ? 'is-selected' : ''">
-            {{ data.day.split('-').slice(1).join('-') }}
-            {{ '✔️'  }}
-          </p>
-        </template>
-      </el-calendar> -->
       </ContentWrap>
       
       <ContentWrap class="timeline-wrap">
         <template #title>{{ dateTitle }}日程</template>
         <el-timeline>
-          <el-timeline-item
-            v-for="item in scheduleList"
-            :key="item.id"
-            :type="item.type"
-            :timestamp="item.time"
-            placement="top"
-          >
-            <div class="timeline-content">
-              <div class="content-header">
-                <span class="title">{{ item.title }}</span>
-                <el-tag size="small" :type="item.type">{{ item.category }}</el-tag>
-              </div>
-              
-              <template v-if="item.content || item.preparation">
-                <div v-if="item.content" class="content-body">
-                  <p class="text">{{ item.content }}</p>
+          <template v-if="currentSchedules.length">
+            <el-timeline-item
+              v-for="item in currentSchedules"
+              :key="item.id"
+              :type="item.type"
+              :timestamp="item.time"
+              placement="top"
+            >
+              <div class="timeline-content">
+                <div class="content-header">
+                  <span class="title">{{ item.title }}</span>
+                  <el-tag size="small" :type="item.type">{{ item.category }}</el-tag>
                 </div>
                 
-                <div v-if="item.preparation" class="content-body">
-                  <p class="text">{{ item.preparation }}</p>
-                </div>
-              </template>
+                <template v-if="item.content || item.preparation">
+                  <div v-if="item.content" class="content-body">
+                    <p class="text">{{ item.content }}</p>
+                  </div>
+                  
+                  <div v-if="item.preparation" class="content-body">
+                    <p class="text">{{ item.preparation }}</p>
+                  </div>
+                </template>
+              </div>
+            </el-timeline-item>
+          </template>
+          
+          <template v-else>
+            <div class="empty-schedule">
+              <el-empty description="暂无日程" />
             </div>
-          </el-timeline-item>
+          </template>
         </el-timeline>
         
         <div class="add-schedule">
@@ -207,16 +211,30 @@ const handleSubmit = () => {
 
         .el-calendar-day {
           height: 100px;
-          padding: 8px;
+          font-size: 12px;
           
           .calendar-cell {
             height: 100%;
             display: flex;
             flex-direction: column;
-            gap: 4px;
+            gap: 2px;
+            border-radius: 4px;
+            cursor: pointer;
+            padding: 4px;
+            transition: background-color 0.2s;
+      
+            &.is-today {
+              .calendar-day {
+                color: var(--el-color-primary);
+                font-weight: bold;
+              }
+            }
             
-            .calendar-day {
-              margin-bottom: 4px;
+            &.is-selected {
+              .calendar-day {
+                color: var(--el-color-primary);
+                font-weight: bold;
+              }
             }
             
             .schedule-marker {
@@ -355,5 +373,9 @@ const handleSubmit = () => {
       text-align: center;
     }
   }
+}
+
+:deep(.el-card__body) {
+  padding: 0 !important;
 }
 </style> 
